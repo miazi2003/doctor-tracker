@@ -3,6 +3,8 @@ import cors from "cors";
 import express from "express";
 
 import { env } from "./config/env.js";
+import { errorHandler } from "./middleware/error.middleware.js";
+import { authRouter } from "./routes/auth.route.js";
 import { healthRouter } from "./routes/health.route.js";
 
 export const app = express();
@@ -18,3 +20,6 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/health", healthRouter);
+app.use("/api/auth", authRouter);
+
+app.use(errorHandler);
