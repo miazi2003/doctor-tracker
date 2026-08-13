@@ -1,4 +1,5 @@
-import type { Response } from "express";
+import type { Request, Response } from "express";
+import { z } from "zod";
 
 import { env } from "../config/env.js";
 
@@ -9,6 +10,19 @@ const EXPIRATION_MILLISECONDS = {
   "1d": 24 * 60 * 60 * 1_000,
   "7d": 7 * 24 * 60 * 60 * 1_000,
 } as const;
+
+const cookieRecordSchema = z.record(z.string(), z.unknown());
+
+export const getAuthenticationToken = (request: Request): string | undefined => {
+  const cookiesResult = cookieRecordSchema.safeParse(request.cookies as unknown);
+
+  if (!cookiesResult.success) {
+    return undefined;
+  }
+
+  const token = cookiesResult.data[env.AUTH_COOKIE_NAME];
+  return typeof token === "string" && token.length > 0 ? token : undefined;
+};
 
 export const setAuthenticationCookie = (
   response: Response,
