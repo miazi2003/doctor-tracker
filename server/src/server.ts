@@ -1,21 +1,46 @@
+import type { Server } from "node:http";
+
 import { app } from "./app.js";
+import { connectDatabase, disconnectDatabase } from "./config/database.js";
 import { env } from "./config/env.js";
 
-const server = app.listen(env.PORT, () => {
-  console.log(`Doctor Tracker API listening on port ${String(env.PORT)}`);
-});
+const registerShutdownHandlers = (server: Server): void => {
+  const shutdown = (signal: NodeJS.Signals): void => {
+    console.log(`${signal} received; shutting down gracefully`);
 
-const shutdown = (signal: NodeJS.Signals): void => {
-  console.log(`${signal} received; shutting down gracefully`);
-  server.close((error) => {
-    if (error) {
-      console.error("Failed to close the HTTP server", error);
-      process.exit(1);
-    }
+    server.close((error) => {
+      if (error) {
+        console.error("Failed to close the HTTP server");
+        process.exitCode = 1;
+      }
 
-    process.exit(0);
-  });
+      void disconnectDatabase()
+        .catch(() => {
+          console.error("Failed to disconnect from MongoDB");
+          process.exitCode = 1;
+        })
+        .finally(() => {
+          process.exit();
+        });
+    });
+  };
+
+  process.once("SIGINT", shutdown);
+  process.once("SIGTERM", shutdown);
 };
 
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
+const startServer = async (): Promise<void> => {
+  try {
+    await connectDatabase();
+
+    const server = app.listen(env.PORT, () => {
+      console.log(`Doctor Tracker API listening on port ${String(env.PORT)}`);
+    });
+
+    registerShutdownHandlers(server);
+  } catch {
+    process.exitCode = 1;
+  }
+};
+
+void startServer();
