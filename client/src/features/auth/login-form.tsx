@@ -1,6 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useQueryClient } from "@tanstack/react-query"
 import { Eye, EyeOff, LoaderCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -12,6 +13,7 @@ import { Label } from "@/components/ui/label"
 
 import { LoginError, loginAdmin } from "./login.api"
 import { loginSchema, type LoginValues } from "./login.schema"
+import { authQueryKeys } from "./auth.queries"
 
 const ERROR_MESSAGES = {
   credentials: "Invalid email or password.",
@@ -22,6 +24,7 @@ const ERROR_MESSAGES = {
 
 export function LoginForm() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [showPassword, setShowPassword] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const {
@@ -37,7 +40,11 @@ export function LoginForm() {
     setServerError(null)
 
     try {
-      await loginAdmin(values)
+      const admin = await loginAdmin(values)
+      queryClient.setQueryData(authQueryKeys.currentAdmin, {
+        status: "authenticated",
+        admin,
+      })
       router.replace("/dashboard")
     } catch (error: unknown) {
       setServerError(

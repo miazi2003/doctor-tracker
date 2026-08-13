@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { ShieldCheck } from "lucide-react"
 
 import { LoginForm } from "@/features/auth/login-form"
+import { LoginAccess } from "@/features/auth/login-access"
 
 export const metadata: Metadata = {
   title: "Admin sign in | Doctor Tracker",
@@ -10,7 +11,8 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <main className="grid min-h-screen bg-white lg:grid-cols-[minmax(22rem,0.9fr)_minmax(32rem,1.1fr)]">
+    <LoginAccess>
+      <main className="grid min-h-screen bg-white lg:grid-cols-[minmax(22rem,0.9fr)_minmax(32rem,1.1fr)]">
       <section className="hidden bg-neutral-950 p-12 text-white lg:flex lg:flex-col lg:justify-between xl:p-16">
         <div className="flex items-center gap-3 text-sm font-semibold tracking-wide">
           <span className="flex size-9 items-center justify-center rounded-lg border border-white/15 bg-white/8">
@@ -60,6 +62,7 @@ export default function LoginPage() {
           </p>
         </div>
       </section>
-    </main>
+      </main>
+    </LoginAccess>
   )
 }

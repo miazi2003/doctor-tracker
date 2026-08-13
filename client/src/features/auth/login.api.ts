@@ -7,16 +7,12 @@ import {
 } from "@/lib/api-client"
 
 import type { LoginValues } from "./login.schema"
+import { currentAdminSchema, type CurrentAdmin } from "./current-admin.api"
 
 const loginSuccessSchema = z.object({
   success: z.literal(true),
   data: z.object({
-    admin: z.object({
-      id: z.string(),
-      name: z.string(),
-      email: z.email(),
-      role: z.literal("admin"),
-    }),
+    admin: currentAdminSchema,
   }),
 })
 
@@ -33,7 +29,7 @@ export class LoginError extends Error {
   }
 }
 
-export const loginAdmin = async (values: LoginValues): Promise<void> => {
+export const loginAdmin = async (values: LoginValues): Promise<CurrentAdmin> => {
   let apiResponse: ApiResponse
 
   try {
@@ -62,7 +58,11 @@ export const loginAdmin = async (values: LoginValues): Promise<void> => {
     throw new LoginError("unexpected")
   }
 
-  if (!loginSuccessSchema.safeParse(apiResponse.payload).success) {
+  const result = loginSuccessSchema.safeParse(apiResponse.payload)
+
+  if (!result.success) {
     throw new LoginError("unexpected")
   }
+
+  return result.data.data.admin
 }

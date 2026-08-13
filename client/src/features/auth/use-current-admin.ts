@@ -11,11 +11,15 @@ import {
 import { authQueryKeys } from "./auth.queries"
 
 export type CurrentAdminState =
-  | { status: "loading"; admin: null; error: null }
-  | { status: "authenticated"; admin: CurrentAdmin; error: null }
-  | { status: "unauthenticated"; admin: null; error: null }
-  | { status: "network-error"; admin: null; error: CurrentAdminError }
-  | { status: "unexpected-error"; admin: null; error: CurrentAdminError }
+  | { status: "loading"; admin: null; error: null; retry: null }
+  | { status: "authenticated"; admin: CurrentAdmin; error: null; retry: null }
+  | { status: "unauthenticated"; admin: null; error: null; retry: null }
+  | {
+      status: "network-error" | "unexpected-error"
+      admin: null
+      error: CurrentAdminError
+      retry: () => void
+    }
 
 export const useCurrentAdmin = (): CurrentAdminState => {
   const query = useQuery<CurrentAdminResult, CurrentAdminError>({
@@ -27,7 +31,7 @@ export const useCurrentAdmin = (): CurrentAdminState => {
   })
 
   if (query.isPending) {
-    return { status: "loading", admin: null, error: null }
+    return { status: "loading", admin: null, error: null, retry: null }
   }
 
   if (query.isError) {
@@ -36,12 +40,25 @@ export const useCurrentAdmin = (): CurrentAdminState => {
         query.error.kind === "network" ? "network-error" : "unexpected-error",
       admin: null,
       error: query.error,
+      retry: () => {
+        void query.refetch()
+      },
     }
   }
 
   if (query.data.status === "unauthenticated") {
-    return { status: "unauthenticated", admin: null, error: null }
+    return {
+      status: "unauthenticated",
+      admin: null,
+      error: null,
+      retry: null,
+    }
   }
 
-  return { status: "authenticated", admin: query.data.admin, error: null }
+  return {
+    status: "authenticated",
+    admin: query.data.admin,
+    error: null,
+    retry: null,
+  }
 }

@@ -6,19 +6,21 @@ import {
   type ApiResponse,
 } from "@/lib/api-client"
 
+export const currentAdminSchema = z
+  .object({
+    id: z.string().regex(/^[a-f\d]{24}$/iu),
+    name: z.string(),
+    email: z.email(),
+    role: z.literal("admin"),
+  })
+  .strict()
+
 const currentAdminResponseSchema = z
   .object({
     success: z.literal(true),
     data: z
       .object({
-        admin: z
-          .object({
-            id: z.string().regex(/^[a-f\d]{24}$/iu),
-            name: z.string(),
-            email: z.email(),
-            role: z.literal("admin"),
-          })
-          .strict(),
+        admin: currentAdminSchema,
       })
       .strict(),
   })
@@ -52,6 +54,7 @@ export const getCurrentAdmin = async (): Promise<CurrentAdminResult> => {
     }
 
     throw new CurrentAdminError("unexpected")
+    
   }
 
   if (apiResponse.response.status === 401) {
