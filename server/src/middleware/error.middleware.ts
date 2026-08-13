@@ -10,6 +10,11 @@ const isMalformedJsonError = (error: unknown): boolean =>
   error.status === 400 &&
   "body" in error;
 
+const isRequestBodyTooLargeError = (error: unknown): boolean =>
+  error instanceof Error &&
+  "type" in error &&
+  error.type === "entity.too.large";
+
 export const errorHandler: ErrorRequestHandler = (
   error: unknown,
   _request,
@@ -17,6 +22,14 @@ export const errorHandler: ErrorRequestHandler = (
   _next,
 ) => {
   void _next;
+
+  if (isRequestBodyTooLargeError(error)) {
+    response.status(413).json({
+      success: false,
+      error: { message: "Request body too large" },
+    });
+    return;
+  }
 
   if (isMalformedJsonError(error)) {
     response.status(400).json({
