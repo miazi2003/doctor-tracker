@@ -1,5 +1,11 @@
 import { z } from "zod"
 
+import {
+  ApiClientError,
+  apiRequest,
+  type ApiResponse,
+} from "@/lib/api-client"
+
 import type { LoginValues } from "./login.schema"
 
 const loginSuccessSchema = z.object({
@@ -27,49 +33,36 @@ export class LoginError extends Error {
   }
 }
 
-const getApiUrl = (): string => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL
-
-  if (apiUrl === undefined || apiUrl.length === 0) {
-    throw new LoginError("unexpected")
-  }
-
-  return apiUrl.replace(/\/$/u, "")
-}
-
 export const loginAdmin = async (values: LoginValues): Promise<void> => {
-  let response: Response
+  let apiResponse: ApiResponse
 
   try {
-    response = await fetch(`${getApiUrl()}/api/auth/login`, {
+    apiResponse = await apiRequest("/api/auth/login", {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
     })
   } catch (error: unknown) {
-    if (error instanceof LoginError) {
-      throw error
+    if (error instanceof ApiClientError && error.kind === "network") {
+      throw new LoginError("network")
     }
 
-    throw new LoginError("network")
-  }
-
-  if (response.status === 400) {
-    throw new LoginError("validation")
-  }
-
-  if (response.status === 401) {
-    throw new LoginError("credentials")
-  }
-
-  if (!response.ok) {
     throw new LoginError("unexpected")
   }
 
-  const payload: unknown = await response.json().catch(() => undefined)
+  if (apiResponse.response.status === 400) {
+    throw new LoginError("validation")
+  }
 
-  if (!loginSuccessSchema.safeParse(payload).success) {
+  if (apiResponse.response.status === 401) {
+    throw new LoginError("credentials")
+  }
+
+  if (!apiResponse.response.ok) {
+    throw new LoginError("unexpected")
+  }
+
+  if (!loginSuccessSchema.safeParse(apiResponse.payload).success) {
     throw new LoginError("unexpected")
   }
 }
