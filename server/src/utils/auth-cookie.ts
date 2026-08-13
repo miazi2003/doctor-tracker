@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { CookieOptions, Request, Response } from "express";
 import { z } from "zod";
 
 import { env } from "../config/env.js";
@@ -12,6 +12,17 @@ const EXPIRATION_MILLISECONDS = {
 } as const;
 
 const cookieRecordSchema = z.record(z.string(), z.unknown());
+
+const getAuthenticationCookieOptions = (): CookieOptions => {
+  const isProduction = env.NODE_ENV === "production";
+
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+  };
+};
 
 export const getAuthenticationToken = (request: Request): string | undefined => {
   const cookiesResult = cookieRecordSchema.safeParse(request.cookies as unknown);
@@ -28,13 +39,15 @@ export const setAuthenticationCookie = (
   response: Response,
   token: string,
 ): void => {
-  const isProduction = env.NODE_ENV === "production";
-
   response.cookie(env.AUTH_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
+    ...getAuthenticationCookieOptions(),
     maxAge: EXPIRATION_MILLISECONDS[env.JWT_EXPIRES_IN],
-    path: "/",
   });
+};
+
+export const clearAuthenticationCookie = (response: Response): void => {
+  response.clearCookie(
+    env.AUTH_COOKIE_NAME,
+    getAuthenticationCookieOptions(),
+  );
 };

@@ -5,7 +5,10 @@ import {
   authenticateAdmin,
   getCurrentAdmin,
 } from "../services/auth.service.js";
-import { setAuthenticationCookie } from "../utils/auth-cookie.js";
+import {
+  clearAuthenticationCookie,
+  setAuthenticationCookie,
+} from "../utils/auth-cookie.js";
 import { createAdminToken } from "../utils/jwt.js";
 import { loginSchema } from "../validation/auth.validation.js";
 
@@ -31,5 +34,13 @@ export const getMe: RequestHandler = async (request, response) => {
   response.status(200).json({
     success: true,
     data: { admin },
+  });
+};
+
+export const logout: RequestHandler = (_request, response) => {
+  clearAuthenticationCookie(response);
+  response.status(200).json({
+    success: true,
+    data: { message: "Logged out successfully" },
   });
 };
