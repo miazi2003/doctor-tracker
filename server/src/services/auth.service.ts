@@ -44,3 +44,21 @@ export const authenticateAdmin = async (
     role: admin.role,
   };
 };
+
+export const getCurrentAdmin = async (adminId: string): Promise<SafeAdmin> => {
+  const admin = await AdminModel.findById(adminId)
+    .select({ _id: 1, name: 1, email: 1, role: 1 })
+    .lean()
+    .exec();
+
+  if (admin === null) {
+    throw new AppError(401, "Unauthorized");
+  }
+
+  return {
+    id: admin._id.toString(),
+    name: admin.name,
+    email: admin.email,
+    role: admin.role,
+  };
+};
