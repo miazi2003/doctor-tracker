@@ -1,7 +1,7 @@
 import type { Server } from "node:http";
 import { pathToFileURL } from "node:url";
 
-import { app } from "./app.js";
+import { app } from "./app.mjs";
 import { connectDatabase, disconnectDatabase } from "./config/database.js";
 import { env } from "./config/env.js";
 
