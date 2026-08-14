@@ -10,6 +10,7 @@ import { verifyRequestOrigin } from "./middleware/origin.middleware.js";
 import { authRouter } from "./routes/auth.route.js";
 import { doctorRouter } from "./routes/doctor.route.js";
 import { healthRouter } from "./routes/health.route.js";
+import { patientRouter } from "./routes/patient.route.js";
 
 export const app = express();
 
@@ -30,7 +31,7 @@ app.use(
       callback(new AppError(403, "Forbidden"));
     },
     credentials: true,
-    methods: ["GET", "POST", "OPTIONS"],
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
   }),
 );
@@ -41,5 +42,6 @@ app.use(verifyRequestOrigin);
 app.use("/api/health", healthRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/doctors", doctorRouter);
+app.use("/api/patients", patientRouter);
 
 app.use(errorHandler);
