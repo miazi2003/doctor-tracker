@@ -4,7 +4,7 @@
   "private": true,
   "description": "REST API for Doctor Tracker",
   "type": "module",
-  "main": "src/express-application.ts",
+  "main": "src/express-application.mts",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "seed:admin": "tsx src/scripts/seed-admin.ts",
