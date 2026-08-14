@@ -2,6 +2,7 @@ import { Separator } from "@/components/ui/separator"
 
 import { Brand } from "./brand"
 import { SidebarNavigation } from "./sidebar-navigation"
+import { SidebarLogoutButton } from "./sidebar-logout-button"
 
 export function DesktopSidebar() {
   return (
@@ -11,13 +12,11 @@ export function DesktopSidebar() {
       </div>
       <Separator className="bg-white/10" />
       <div className="flex-1 px-4 py-6">
-        <p className="mb-3 px-3 text-[0.75rem] font-semibold tracking-[0.14em] text-neutral-500 uppercase">
-          Workspace
-        </p>
         <SidebarNavigation />
       </div>
       <div className="border-t border-white/10 px-6 py-5">
-        <p className="text-xs leading-5 text-neutral-500">
+        <SidebarLogoutButton />
+        <p className="mt-3 px-3 text-xs leading-5 text-neutral-500">
           Secure administration portal
         </p>
       </div>

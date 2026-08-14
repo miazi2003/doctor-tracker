@@ -15,6 +15,7 @@ import {
 
 import { Brand } from "./brand"
 import { SidebarNavigation } from "./sidebar-navigation"
+import { SidebarLogoutButton } from "./sidebar-logout-button"
 
 export function MobileNavigation() {
   const [open, setOpen] = useState(false)
@@ -44,11 +45,11 @@ export function MobileNavigation() {
           </SheetDescription>
           <Brand />
         </SheetHeader>
-        <div className="px-4 py-6">
-          <p className="mb-3 px-3 text-[0.75rem] font-semibold tracking-[0.14em] text-neutral-500 uppercase">
-            Workspace
-          </p>
+        <div className="flex flex-1 flex-col px-4 py-6">
           <SidebarNavigation onNavigate={() => setOpen(false)} />
+          <div className="mt-auto border-t border-white/10 pt-4">
+            <SidebarLogoutButton />
+          </div>
         </div>
       </SheetContent>
     </Sheet>
