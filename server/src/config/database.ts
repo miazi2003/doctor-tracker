@@ -55,7 +55,9 @@ const getDatabaseErrorDetails = (error: unknown): DatabaseErrorDetails => {
   return details;
 };
 
-export const connectDatabase = async (): Promise<void> => {
+export const connectDatabase = async (
+  options: { silent?: boolean } = {},
+): Promise<void> => {
   if (mongoose.connection.readyState === mongoose.ConnectionStates.connected) {
     return;
   }
@@ -63,7 +65,9 @@ export const connectDatabase = async (): Promise<void> => {
   connectionPromise ??= mongoose
     .connect(env.MONGODB_URI)
     .then(() => {
-      console.log("MongoDB connected");
+      if (options.silent !== true) {
+        console.log("MongoDB connected");
+      }
     })
     .catch((error: unknown) => {
       connectionPromise = undefined;

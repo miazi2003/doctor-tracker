@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "seed:admin": "tsx src/scripts/seed-admin.ts",
+    "seed:demo": "tsx src/scripts/seed-demo.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "type-check": "tsc --noEmit",
