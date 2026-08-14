@@ -8,7 +8,6 @@ import {
   Mail,
   Phone,
   Stethoscope,
-  UsersRound,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -25,6 +24,7 @@ import {
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
+import { DoctorPatientManager } from "@/components/patients/doctor-patient-manager"
 import { DoctorApiError } from "@/features/doctors/doctor.api"
 import { doctorDetailQueryOptions } from "@/features/doctors/doctor.queries"
 
@@ -94,7 +94,7 @@ export function DoctorDetails({ doctorId }: { doctorId: string }) {
         Back to doctors
       </Button>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(19rem,0.6fr)]">
+      <div className="mt-5 space-y-8">
         <Card>
           <CardHeader>
             <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -153,17 +153,7 @@ export function DoctorDetails({ doctorId }: { doctorId: string }) {
           </CardContent>
         </Card>
 
-        <Card className="self-start border-dashed">
-          <CardHeader>
-            <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600">
-              <UsersRound className="size-5" aria-hidden="true" />
-            </span>
-            <CardTitle>Patients</CardTitle>
-            <CardDescription>
-              Patient management for this doctor will be added later.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <DoctorPatientManager doctorId={doctor.id} doctorName={doctor.name} />
       </div>
     </PageContainer>
   )
