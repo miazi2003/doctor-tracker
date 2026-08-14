@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -96,14 +97,16 @@ export function AdminUserMenu() {
           )}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-64">
-          <DropdownMenuLabel className="px-2 py-2">
-            <span className="block truncate text-sm font-medium text-foreground">
-              {admin.name}
-            </span>
-            <span className="mt-0.5 block truncate font-normal text-muted-foreground">
-              {admin.email}
-            </span>
-          </DropdownMenuLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="px-2 py-2">
+              <span className="block truncate text-sm font-medium text-foreground">
+                {admin.name}
+              </span>
+              <span className="mt-0.5 block truncate font-normal text-muted-foreground">
+                {admin.email}
+              </span>
+            </DropdownMenuLabel>
+          </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             disabled={isLoggingOut}

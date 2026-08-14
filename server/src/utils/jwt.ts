@@ -29,6 +29,8 @@ export const createAdminToken = (adminId: string): string =>
   );
 
 export const verifyAdminToken = (token: string): AdminJwtPayload => {
-  const decodedToken: unknown = jwt.verify(token, env.JWT_SECRET);
+  const decodedToken: unknown = jwt.verify(token, env.JWT_SECRET, {
+    algorithms: ["HS256"],
+  });
   return adminJwtPayloadSchema.parse(decodedToken);
 };

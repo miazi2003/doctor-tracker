@@ -8,6 +8,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
@@ -94,16 +95,18 @@ export function LoginForm() {
             disabled={isSubmitting}
             {...register("password")}
           />
-          <button
+          <Button
             type="button"
-            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:opacity-50"
+            variant="ghost"
+            size="icon"
+            className="absolute inset-y-0 right-0 h-full w-11 rounded-l-none rounded-r-lg text-muted-foreground hover:text-foreground"
             onClick={() => setShowPassword((visible) => !visible)}
             aria-label={showPassword ? "Hide password" : "Show password"}
             aria-pressed={showPassword}
             disabled={isSubmitting}
           >
             {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
-          </button>
+          </Button>
         </div>
         {errors.password && (
           <p id="password-error" className="text-sm text-destructive">
@@ -113,12 +116,9 @@ export function LoginForm() {
       </div>
 
       {serverError && (
-        <div
-          role="alert"
-          className="rounded-lg border border-destructive/25 bg-destructive/8 px-3.5 py-3 text-sm text-destructive"
-        >
-          {serverError}
-        </div>
+        <Alert variant="destructive">
+          <AlertDescription>{serverError}</AlertDescription>
+        </Alert>
       )}
 
       <Button

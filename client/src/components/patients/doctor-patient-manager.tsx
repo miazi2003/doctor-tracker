@@ -25,6 +25,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { deletePatient, PatientApiError } from "@/features/patients/patient.api"
 import { doctorPatientListQueryOptions, patientQueryKeys } from "@/features/patients/patient.queries"
+import { dashboardQueryKeys } from "@/features/dashboard/dashboard.queries"
 import type { Patient, PatientListParameters } from "@/features/patients/patient.schema"
 import { cn } from "@/lib/utils"
 import { PatientFormDialog } from "./patient-form-dialog"
@@ -86,7 +87,7 @@ export function DoctorPatientManager({ doctorId, doctorName }: { doctorId: strin
     return { page, limit, ...(patientSearch === undefined ? {} : { search: patientSearch }), ...(patientCondition === undefined ? {} : { condition: patientCondition }), ...(startDate ? { startDate } : {}), ...(endDate ? { endDate } : {}) }
   }, [condition, endDate, limit, page, startDate, urlSearch])
   const query = useQuery(doctorPatientListQueryOptions(doctorId, parameters))
-  const mutation = useMutation({ mutationFn: deletePatient, onSuccess: async (patient) => { setDeleteTarget(null); await Promise.all([queryClient.invalidateQueries({ queryKey: patientQueryKeys.doctorLists(doctorId) }), queryClient.invalidateQueries({ queryKey: patientQueryKeys.globalLists() })]); toast.success(`${patient.name} was deleted`) } })
+  const mutation = useMutation({ mutationFn: deletePatient, onSuccess: async (patient) => { setDeleteTarget(null); await Promise.all([queryClient.invalidateQueries({ queryKey: patientQueryKeys.doctorLists(doctorId) }), queryClient.invalidateQueries({ queryKey: patientQueryKeys.globalLists() }), queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.all })]); toast.success(`${patient.name} was deleted`) } })
   const hasFilters = Boolean(urlSearch || condition || startDate || endDate || limit !== 20)
   const getPageHref = (nextPage: number) => {
     const next = new URLSearchParams(serialized)

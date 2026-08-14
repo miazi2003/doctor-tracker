@@ -33,6 +33,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { createDoctor, DoctorApiError } from "@/features/doctors/doctor.api"
 import { doctorQueryKeys } from "@/features/doctors/doctor.queries"
+import { dashboardQueryKeys } from "@/features/dashboard/dashboard.queries"
 import {
   createDoctorSchema,
   type CreateDoctorValues,
@@ -104,7 +105,10 @@ export function CreateDoctorForm() {
     mutationFn: createDoctor,
     onSuccess: async (doctor) => {
       completedRef.current = true
-      await queryClient.invalidateQueries({ queryKey: doctorQueryKeys.lists() })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: doctorQueryKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: dashboardQueryKeys.all }),
+      ])
       toast.success(`${doctor.name} was added`)
       form.reset(defaultValues)
       router.push(doctor.id.length > 0 ? `/doctors/${doctor.id}` : "/doctors")
