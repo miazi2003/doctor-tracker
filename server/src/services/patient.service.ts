@@ -47,6 +47,15 @@ interface MinimalDoctorRecord {
   hospital: string;
 }
 
+interface MinimalListDoctorRecord {
+  _id: { toString(): string };
+  name: string;
+}
+
+interface PopulatedPatientRecord extends Omit<PatientRecord, "doctor"> {
+  doctor: MinimalListDoctorRecord | null;
+}
+
 type SearchablePatientField = "name" | "phone" | "condition" | "gender";
 
 interface PatientFilter {
@@ -89,6 +98,13 @@ export interface PatientListResult {
     total: number;
     totalPages: number;
   };
+}
+
+export interface GlobalPatientListResult
+  extends Omit<PatientListResult, "patients"> {
+  patients: (Omit<SafePatient, "doctor"> & {
+    doctor: { id: string; name: string } | null;
+  })[];
 }
 
 const escapeRegularExpression = (value: string): string =>
@@ -220,7 +236,55 @@ export const listPatientsForDoctor = async (
 
 export const listPatients = async (
   query: PatientListQuery,
-): Promise<PatientListResult> => executePatientList(query);
+): Promise<GlobalPatientListResult> => {
+  const filter = buildPatientFilter(query);
+  const skip = (query.page - 1) * query.limit;
+
+  const [patientRecords, total] = await Promise.all([
+    PatientModel.find(filter)
+      .select(PATIENT_PROJECTION)
+      .collation(PATIENT_FILTER_COLLATION)
+      .sort({ appointmentDate: -1, _id: -1 })
+      .skip(skip)
+      .limit(query.limit)
+      .populate<{ doctor: MinimalListDoctorRecord | null }>({
+        path: "doctor",
+        select: { _id: 1, name: 1 },
+      })
+      .lean<PopulatedPatientRecord[]>()
+      .exec(),
+    PatientModel.countDocuments(filter)
+      .collation(PATIENT_FILTER_COLLATION)
+      .exec(),
+  ]);
+
+  return {
+    patients: patientRecords.map((patient) => ({
+      id: patient._id.toString(),
+      name: patient.name,
+      age: patient.age,
+      gender: patient.gender,
+      phone: patient.phone,
+      condition: patient.condition,
+      appointmentDate: patient.appointmentDate,
+      doctor:
+        patient.doctor === null
+          ? null
+          : {
+              id: patient.doctor._id.toString(),
+              name: patient.doctor.name,
+            },
+      createdAt: patient.createdAt,
+      updatedAt: patient.updatedAt,
+    })),
+    pagination: {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages: total === 0 ? 0 : Math.ceil(total / query.limit),
+    },
+  };
+};
 
 export const getPatientById = async (
   patientId: string,

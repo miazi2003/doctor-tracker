@@ -15,6 +15,10 @@ export const patientSchema = z.object({
   updatedAt: z.iso.datetime(),
 }).strict()
 
+export const globalPatientSchema = patientSchema.extend({
+  doctor: z.object({ id: z.string().regex(/^[a-f\d]{24}$/iu), name: z.string() }).strict().nullable(),
+}).strict()
+
 export const createPatientSchema = z.object({
   name: z.string().trim().min(2, "Name must contain at least 2 characters").max(100),
   age: z.string().trim().min(1, "Age is required")
@@ -29,6 +33,8 @@ export const createPatientSchema = z.object({
 })
 
 export type Patient = z.infer<typeof patientSchema>
+export type GlobalPatient = z.infer<typeof globalPatientSchema>
+export type EditablePatient = Omit<Patient, "doctor">
 export type PatientGender = (typeof patientGenders)[number]
 export type CreatePatientValues = z.input<typeof createPatientSchema>
 export type CreatePatientPayload = z.output<typeof createPatientSchema>
@@ -40,6 +46,7 @@ export interface PatientListParameters {
   condition?: string
   startDate?: string
   endDate?: string
+  doctorId?: string
 }
 
 export interface PatientPagination {
