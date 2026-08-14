@@ -1,7 +1,7 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import helmet from "helmet";
+import * as helmetModule from "helmet";
 
 import { env } from "./config/env.js";
 import { AppError } from "./errors/app-error.js";
@@ -21,7 +21,7 @@ if (env.TRUST_PROXY) {
   app.set("trust proxy", 1);
 }
 
-app.use(helmet());
+app.use(helmetModule.default());
 app.use(
   cors({
     origin: (origin, callback) => {
