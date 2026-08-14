@@ -6,6 +6,7 @@ import helmet from "helmet";
 import { env } from "./config/env.js";
 import { AppError } from "./errors/app-error.js";
 import { errorHandler } from "./middleware/error.middleware.js";
+import { requireDatabaseConnection } from "./middleware/database.middleware.js";
 import { verifyRequestOrigin } from "./middleware/origin.middleware.js";
 import { authRouter } from "./routes/auth.route.js";
 import { doctorRouter } from "./routes/doctor.route.js";
@@ -41,6 +42,7 @@ app.use(cookieParser());
 app.use(verifyRequestOrigin);
 
 app.use("/api/health", healthRouter);
+app.use(requireDatabaseConnection);
 app.use("/api/auth", authRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/doctors", doctorRouter);

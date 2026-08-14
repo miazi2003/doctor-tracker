@@ -1,4 +1,5 @@
 import type { Server } from "node:http";
+import { pathToFileURL } from "node:url";
 
 import { app } from "./app.js";
 import { connectDatabase, disconnectDatabase } from "./config/database.js";
@@ -43,4 +44,13 @@ const startServer = async (): Promise<void> => {
   }
 };
 
-void startServer();
+const isDirectExecution =
+  process.env.VERCEL !== "1" &&
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isDirectExecution) {
+  void startServer();
+}
+
+export default app;
