@@ -41,6 +41,9 @@ app.use(express.json({ limit: env.JSON_BODY_LIMIT }));
 app.use(cookieParser());
 app.use(verifyRequestOrigin);
 
+app.get("/", (_request, response) => {
+  response.status(200).json({ message: "Doctor Tracker API is running" });
+});
 app.use("/api/health", healthRouter);
 app.use(requireDatabaseConnection);
 app.use("/api/auth", authRouter);

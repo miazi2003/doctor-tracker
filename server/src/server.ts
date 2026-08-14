@@ -52,5 +52,3 @@ const isDirectExecution =
 if (isDirectExecution) {
   void startServer();
 }
-
-export default app;
