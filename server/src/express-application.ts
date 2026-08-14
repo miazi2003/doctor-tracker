@@ -1,7 +1,8 @@
+import { createRequire } from "node:module";
+
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import express from "express";
-import helmet from "helmet";
+import express, { type RequestHandler } from "express";
 
 import { env } from "./config/env.js";
 import { AppError } from "./errors/app-error.js";
@@ -14,14 +15,33 @@ import { dashboardRouter } from "./routes/dashboard.route.js";
 import { healthRouter } from "./routes/health.route.js";
 import { patientRouter } from "./routes/patient.route.js";
 
-export const app = express();
+const require = createRequire(import.meta.url);
+const helmetModule: unknown = require("helmet");
+
+const isZeroArgumentFactory = (value: unknown): value is () => unknown =>
+  typeof value === "function" && value.length === 0;
+
+const isRequestHandler = (value: unknown): value is RequestHandler =>
+  typeof value === "function";
+
+if (!isZeroArgumentFactory(helmetModule)) {
+  throw new TypeError("Security middleware could not be initialized");
+}
+
+const helmetMiddleware: unknown = helmetModule();
+
+if (!isRequestHandler(helmetMiddleware)) {
+  throw new TypeError("Security middleware could not be initialized");
+}
+
+const app = express();
 
 app.disable("x-powered-by");
 if (env.TRUST_PROXY) {
   app.set("trust proxy", 1);
 }
 
-app.use(helmet());
+app.use(helmetMiddleware);
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -52,3 +72,5 @@ app.use("/api/doctors", doctorRouter);
 app.use("/api/patients", patientRouter);
 
 app.use(errorHandler);
+
+export default app;
