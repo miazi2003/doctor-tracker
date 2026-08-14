@@ -9,6 +9,7 @@ import { errorHandler } from "./middleware/error.middleware.js";
 import { verifyRequestOrigin } from "./middleware/origin.middleware.js";
 import { authRouter } from "./routes/auth.route.js";
 import { doctorRouter } from "./routes/doctor.route.js";
+import { dashboardRouter } from "./routes/dashboard.route.js";
 import { healthRouter } from "./routes/health.route.js";
 import { patientRouter } from "./routes/patient.route.js";
 
@@ -41,6 +42,7 @@ app.use(verifyRequestOrigin);
 
 app.use("/api/health", healthRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/dashboard", dashboardRouter);
 app.use("/api/doctors", doctorRouter);
 app.use("/api/patients", patientRouter);
 
