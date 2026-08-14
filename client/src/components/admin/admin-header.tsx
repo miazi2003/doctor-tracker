@@ -18,7 +18,7 @@ export function AdminHeader() {
         <MobileNavigation />
         <Separator orientation="vertical" className="h-5 bg-white/10 lg:hidden" />
         <div className="min-w-0 flex-1">
-          <p className="hidden text-[0.65rem] font-medium tracking-[0.12em] text-neutral-500 uppercase sm:block">
+          <p className="hidden text-[0.72rem] font-medium tracking-[0.12em] text-neutral-500 uppercase sm:block">
             Admin portal
           </p>
           <h1 className="truncate text-base font-medium tracking-[-0.02em] text-neutral-100 sm:mt-0.5 sm:text-lg">

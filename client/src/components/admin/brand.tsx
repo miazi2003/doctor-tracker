@@ -10,7 +10,7 @@ export function Brand() {
         <p className="truncate text-sm font-semibold tracking-[-0.02em] text-white">
           Doctor Tracker
         </p>
-        <p className="mt-0.5 text-[0.68rem] text-neutral-500">Admin workspace</p>
+        <p className="mt-0.5 text-[0.75rem] text-neutral-500">Admin workspace</p>
       </div>
     </div>
   )

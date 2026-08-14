@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { LoaderCircle, Plus } from "lucide-react"
-import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
@@ -23,6 +22,7 @@ import {
   type DoctorFilterValues,
 } from "./doctor-list-filters"
 import { DoctorPagination } from "./doctor-pagination"
+import { CreateDoctorForm } from "./create-doctor-form"
 
 const readPositiveInteger = (
   value: string | null,
@@ -137,10 +137,7 @@ function DoctorManagerContent({ urlSearch }: { urlSearch: string }) {
               Add doctors and find their contact and practice information.
             </p>
           </div>
-          <Button size="lg" nativeButton={false} render={<Link href="/doctors/new" />}>
-            <Plus aria-hidden="true" />
-            Add doctor
-          </Button>
+          <CreateDoctorForm trigger={<Button size="lg"><Plus aria-hidden="true" />Add doctor</Button>} />
         </div>
 
         <DoctorListFilters

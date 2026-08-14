@@ -1,7 +1,8 @@
-import { ArrowRight, Building2, Mail, Phone, Stethoscope } from "lucide-react"
+import { ArrowRight, Building2, CalendarDays, Mail, Phone, Stethoscope } from "lucide-react"
 import Link from "next/link"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -23,6 +24,8 @@ import {
 import type { Doctor } from "@/features/doctors/doctor.schema"
 
 import { DoctorDate } from "./doctor-date"
+
+const getInitials = (name: string): string => name.trim().split(/\s+/u).filter(Boolean).slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase() || "D"
 
 export function DoctorListSkeleton() {
   return (
@@ -104,7 +107,7 @@ export function DoctorListEmpty({ filtered }: { filtered: boolean }) {
 export function DoctorList({ doctors }: { doctors: Doctor[] }) {
   return (
     <>
-      <Card className="hidden overflow-hidden py-0 md:block">
+      <Card className="hidden overflow-hidden border-0 bg-transparent py-0 md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -113,21 +116,22 @@ export function DoctorList({ doctors }: { doctors: Doctor[] }) {
               <TableHead>Hospital</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead>Added</TableHead>
-              <TableHead className="w-12 pr-5">
-                <span className="sr-only">Open doctor</span>
-              </TableHead>
+              <TableHead className="w-20 pr-5 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {doctors.map((doctor) => (
               <TableRow key={doctor.id}>
-                <TableCell className="pl-5 font-medium">
-                  <Link
-                    href={`/doctors/${doctor.id}`}
-                    className="rounded-sm outline-none hover:underline focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070908]"
-                  >
-                    {doctor.name}
-                  </Link>
+                <TableCell className="pl-5 font-medium text-neutral-100">
+                  <div className="flex items-center gap-2.5">
+                    <Avatar size="sm"><AvatarFallback className="bg-white/15 text-[0.65rem] font-semibold text-white">{getInitials(doctor.name)}</AvatarFallback></Avatar>
+                    <Link
+                      href={`/doctors/${doctor.id}`}
+                      className="rounded-sm outline-none hover:underline focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070908]"
+                    >
+                      {doctor.name}
+                    </Link>
+                  </div>
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary">{doctor.specialization}</Badge>
@@ -145,9 +149,9 @@ export function DoctorList({ doctors }: { doctors: Doctor[] }) {
                   </a>
                 </TableCell>
                 <TableCell className="whitespace-nowrap text-neutral-400">
-                  <DoctorDate value={doctor.createdAt} />
+                  <span className="flex items-center gap-2"><CalendarDays className="size-3.5 text-neutral-500" aria-hidden="true" /><DoctorDate value={doctor.createdAt} /></span>
                 </TableCell>
-                <TableCell className="pr-5">
+                <TableCell className="pr-5 text-right">
                   <Button
                     variant="ghost"
                     size="icon-sm"

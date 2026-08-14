@@ -26,6 +26,7 @@ const compactDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "num
 const fullDate = new Intl.DateTimeFormat("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })
 const appointmentDate = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC", timeZoneName: "short" })
 const dateFromDay = (value: string): Date => new Date(`${value}T00:00:00.000Z`)
+const compactDoctorName = (value: string): string => value.length > 12 ? `${value.slice(0, 12)}...` : value
 const isDashboardDays = (value: number): value is DashboardDays => dashboardDays.includes(value as DashboardDays)
 const dateChartConfig = { patients: { label: "Patients", color: "#f5f5f5" } } satisfies ChartConfig
 const doctorChartConfig = { patients: { label: "Patients", color: "#d4d4d4" } } satisfies ChartConfig
@@ -49,7 +50,7 @@ function MetricCard({ title, value, description, icon: Icon }: { title: string; 
   return (
     <article className="group min-w-0 overflow-hidden rounded-[1.35rem] bg-[#0a0c0b] text-neutral-950 shadow-[0_20px_70px_rgba(0,0,0,0.28)]">
       <div className="flex h-[4.65rem] items-start justify-between gap-3 bg-[linear-gradient(180deg,#ffffff_0%,#e7e7e7_68%,#b9b9b9_100%)] px-5 pt-4">
-        <p className="truncate text-[0.78rem] font-semibold tracking-[-0.01em]">{title}</p>
+        <p className="truncate text-[0.8125rem] font-semibold tracking-[-0.01em]">{title}</p>
         <span className="-mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-[#050706] text-white shadow-lg transition-transform group-hover:scale-105"><Icon className="size-[1.15rem]" aria-hidden="true" /></span>
       </div>
       <div className="relative -mt-4 min-h-[6.6rem] rounded-[1.35rem] bg-[linear-gradient(145deg,#151817_0%,#0a0c0b_68%)] px-5 py-4 text-white shadow-[0_-12px_28px_rgba(0,0,0,0.34)] before:pointer-events-none before:absolute before:inset-x-8 before:-top-3 before:h-5 before:rounded-full before:bg-black/25 before:blur-lg">
@@ -97,11 +98,11 @@ function DoctorChart({ stats }: { stats: DashboardStats }) {
       <CardContent className="min-w-0 px-3 pt-4 pb-3 sm:px-5">
         {data.length === 0 ? <EmptyChart message="Patient assignments will appear here once records are added." /> : (
           <div className="overflow-x-auto pb-1 [scrollbar-color:#404040_transparent]">
-            <ChartContainer config={doctorChartConfig} className="h-64 aspect-auto text-neutral-500 [&_.recharts-cartesian-axis-tick_text]:fill-neutral-400 [&_.recharts-cartesian-grid_line]:stroke-white/[0.06]" style={{ minWidth: Math.max(576, data.length * 92) }} role="img" aria-label="Vertical bar chart of patients per Doctor">
+            <ChartContainer config={doctorChartConfig} className="h-64 aspect-auto text-neutral-500 [&_.recharts-cartesian-axis-tick_text]:fill-neutral-100 [&_.recharts-cartesian-grid_line]:stroke-white/[0.06]" style={{ minWidth: Math.max(576, data.length * 92) }} role="img" aria-label="Vertical bar chart of patients per Doctor">
               <BarChart data={data} margin={{ left: 0, right: 0, top: 8, bottom: 8 }} accessibilityLayer>
                 <defs><linearGradient id="doctorBarFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#f5f5f5" stopOpacity={0.95} /><stop offset="100%" stopColor="#737373" stopOpacity={0.68} /></linearGradient></defs>
                 <CartesianGrid vertical={false} strokeDasharray="3 5" />
-                <XAxis dataKey="doctor" type="category" interval={0} tickLine={false} axisLine={false} tickMargin={12} height={44} />
+                <XAxis dataKey="doctor" type="category" interval={0} tickLine={false} axisLine={false} tickMargin={12} height={44} tick={{ fontSize: 11 }} tickFormatter={compactDoctorName} />
                 <YAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} width={28} />
                 <ChartTooltip cursor={{ fill: "rgba(255,255,255,0.035)", radius: 14 }} content={<ChartTooltipContent className="border-white/10 bg-[#111412] text-neutral-100" labelFormatter={(value) => String(value)} />} />
                 <Bar dataKey="patients" fill="url(#doctorBarFill)" radius={[16, 16, 16, 16]} maxBarSize={58} isAnimationActive={false} />
@@ -138,7 +139,7 @@ function ConditionChart({ stats }: { stats: DashboardStats }) {
               </PieChart>
             </ChartContainer>
             <ul className="grid min-w-0 gap-2" aria-label="Patient condition totals">
-              {data.map((item) => <li key={item.key} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-[0.7rem]"><span className="size-2.5 rounded-[0.2rem]" style={{ backgroundColor: item.color }} aria-hidden="true" /><span className="truncate text-neutral-300" title={item.condition}>{item.condition}</span><span className="text-right font-medium text-neutral-400 tabular-nums">{compactNumber.format(item.count)}</span></li>)}
+              {data.map((item) => <li key={item.key} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-[0.75rem]"><span className="size-2.5 rounded-[0.2rem]" style={{ backgroundColor: item.color }} aria-hidden="true" /><span className="truncate text-neutral-300" title={item.condition}>{item.condition}</span><span className="text-right font-medium text-neutral-400 tabular-nums">{compactNumber.format(item.count)}</span></li>)}
             </ul>
           </div>
         )}
@@ -161,12 +162,12 @@ function UpcomingPatients({ stats }: { stats: DashboardStats }) {
       </CardHeader>
       {patients.length === 0 ? <CardContent className="flex min-h-64 items-center justify-center px-6 text-center text-sm text-neutral-500">No upcoming appointments are scheduled.</CardContent> : (
         <CardContent className="px-5 pt-4 pb-4 sm:px-6">
-          <div className="hidden grid-cols-[minmax(10rem,1.1fr)_minmax(7rem,0.8fr)_minmax(10rem,1fr)_minmax(9rem,0.9fr)] gap-4 border-b border-white/[0.07] px-1 pb-2 text-[0.65rem] font-medium tracking-wide text-neutral-500 uppercase lg:grid"><span>Patient</span><span>Condition</span><span>Appointment</span><span>Doctor</span></div>
+          <div className="hidden grid-cols-[minmax(10rem,1.1fr)_minmax(7rem,0.8fr)_minmax(10rem,1fr)_minmax(9rem,0.9fr)] gap-4 border-b border-white/[0.07] px-1 pb-2 text-[0.7rem] font-medium tracking-wide text-neutral-500 uppercase lg:grid"><span>Patient</span><span>Condition</span><span>Appointment</span><span>Doctor</span></div>
           <ul className="divide-y divide-white/[0.07]">
             {patients.map((patient) => (
               <li key={patient.id} className="grid min-w-0 gap-3 py-3 first:pt-2 last:pb-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center lg:grid-cols-[minmax(10rem,1.1fr)_minmax(7rem,0.8fr)_minmax(10rem,1fr)_minmax(9rem,0.9fr)] lg:gap-4">
-                <div className="flex min-w-0 items-center gap-2.5"><Avatar size="sm" className="size-8"><AvatarFallback className="bg-[linear-gradient(145deg,#ffffff,#bdbdbd)] text-[0.6rem] font-bold text-neutral-950">{getInitials(patient.name)}</AvatarFallback></Avatar><span className="truncate text-xs font-medium text-neutral-100" title={patient.name}>{patient.name}</span></div>
-                <Badge variant="outline" className="w-fit max-w-full rounded-full border-white/10 bg-white/[0.05] px-2.5 py-1 text-[0.65rem] font-normal text-neutral-300"><span className="truncate">{patient.condition}</span></Badge>
+                <div className="flex min-w-0 items-center gap-2.5"><Avatar size="sm" className="size-8"><AvatarFallback className="bg-[linear-gradient(145deg,#ffffff,#bdbdbd)] text-[0.68rem] font-bold text-neutral-950">{getInitials(patient.name)}</AvatarFallback></Avatar><span className="truncate text-xs font-medium text-neutral-100" title={patient.name}>{patient.name}</span></div>
+                <Badge variant="outline" className="w-fit max-w-full rounded-full border-white/10 bg-white/[0.05] px-2.5 py-1 text-[0.72rem] font-normal text-neutral-300"><span className="truncate">{patient.condition}</span></Badge>
                 <time dateTime={patient.appointmentDate} className="text-xs leading-5 text-neutral-300">{appointmentDate.format(new Date(patient.appointmentDate))}</time>
                 <span className="truncate text-xs text-neutral-400" title={patient.doctor?.name ?? "Doctor unavailable"}>{patient.doctor?.name ?? "Doctor unavailable"}</span>
               </li>
@@ -198,9 +199,12 @@ export function Dashboard() {
       <div className="space-y-5">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div><h2 className="text-2xl font-semibold tracking-[-0.035em] text-white sm:text-[1.75rem]">Analytics dashboard</h2><p className="mt-1.5 max-w-2xl text-sm leading-6 text-neutral-400">Monitor Patient activity, Doctor workloads, and upcoming appointments.</p></div>
-          <div className="flex min-h-11 items-center gap-2">
+          <div className="flex min-h-11 items-center gap-3">
+            <label htmlFor="dashboard-date-range" className="text-xs font-medium text-neutral-400">
+              Date range
+            </label>
             <Select value={String(days)} onValueChange={(value) => { const nextDays = Number(value); if (!isDashboardDays(nextDays)) return; const next = new URLSearchParams(searchParams.toString()); next.set("days", String(nextDays)); router.replace(`${pathname}?${next.toString()}`, { scroll: false }) }}>
-              <SelectTrigger className="h-11 w-36 rounded-full border-white/10 bg-white/[0.045] px-4 text-neutral-100 hover:bg-white/[0.07]" aria-label="Dashboard date range"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="dashboard-date-range" className="h-11 w-36 rounded-full border-white/10 bg-white/[0.045] px-4 text-neutral-100 hover:bg-white/[0.07]" aria-label="Dashboard date range"><SelectValue /></SelectTrigger>
               <SelectContent className="border-white/10 bg-[#111412] text-neutral-100 ring-white/10">{dashboardDays.map((option) => <SelectItem key={option} value={String(option)} className="focus:bg-white/10 focus:text-white">Last {option} days</SelectItem>)}</SelectContent>
             </Select>
             {query.isFetching && <span role="status" className="flex items-center gap-1.5 text-xs text-neutral-500"><LoaderCircle className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />Updating</span>}

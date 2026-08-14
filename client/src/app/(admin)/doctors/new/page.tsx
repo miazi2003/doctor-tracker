@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function NewDoctorPage() {
-  return <CreateDoctorForm />
+  return <CreateDoctorForm defaultOpen />
 }

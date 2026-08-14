@@ -11,7 +11,7 @@ export function DesktopSidebar() {
       </div>
       <Separator className="bg-white/10" />
       <div className="flex-1 px-4 py-6">
-        <p className="mb-3 px-3 text-[0.6875rem] font-semibold tracking-[0.14em] text-neutral-500 uppercase">
+        <p className="mb-3 px-3 text-[0.75rem] font-semibold tracking-[0.14em] text-neutral-500 uppercase">
           Workspace
         </p>
         <SidebarNavigation />
