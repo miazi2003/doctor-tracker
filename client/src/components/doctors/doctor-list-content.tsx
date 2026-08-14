@@ -1,4 +1,4 @@
-import { ArrowRight, Building2, CalendarDays, Mail, Phone, Stethoscope } from "lucide-react"
+import { ArrowRight, CalendarDays, Stethoscope } from "lucide-react"
 import Link from "next/link"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -31,8 +31,8 @@ export function DoctorListSkeleton() {
   return (
     <div aria-label="Loading doctors" role="status" className="space-y-3">
       <span className="sr-only">Loading doctors</span>
-      <Card className="hidden md:block">
-        <CardContent className="space-y-4 p-5">
+      <Card className="overflow-x-auto">
+        <CardContent className="min-w-[62rem] space-y-4 p-5">
           {Array.from({ length: 5 }, (_, index) => (
             <div key={index} className="grid grid-cols-5 gap-5">
               <Skeleton className="h-5 w-32" />
@@ -44,20 +44,6 @@ export function DoctorListSkeleton() {
           ))}
         </CardContent>
       </Card>
-      <div className="grid gap-3 md:hidden">
-        {Array.from({ length: 3 }, (_, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <Skeleton className="h-5 w-40" />
-              <Skeleton className="h-4 w-28" />
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </div>
   )
 }
@@ -106,9 +92,8 @@ export function DoctorListEmpty({ filtered }: { filtered: boolean }) {
 
 export function DoctorList({ doctors }: { doctors: Doctor[] }) {
   return (
-    <>
-      <Card className="hidden overflow-hidden border-0 bg-transparent py-0 md:block">
-        <Table>
+      <Card className="overflow-hidden border-0 bg-transparent py-0">
+        <Table className="min-w-[62rem]">
           <TableHeader>
             <TableRow>
               <TableHead className="pl-5">Doctor</TableHead>
@@ -167,44 +152,5 @@ export function DoctorList({ doctors }: { doctors: Doctor[] }) {
           </TableBody>
         </Table>
       </Card>
-
-      <div className="grid gap-3 md:hidden">
-        {doctors.map((doctor) => (
-          <Link
-            key={doctor.id}
-            href={`/doctors/${doctor.id}`}
-            className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070908]"
-          >
-            <Card className="transition-colors hover:ring-white/20">
-              <CardHeader>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <CardTitle className="truncate text-base">{doctor.name}</CardTitle>
-                    <CardDescription className="mt-1">
-                      {doctor.specialization}
-                    </CardDescription>
-                  </div>
-                  <ArrowRight className="size-4 shrink-0 text-neutral-400" aria-hidden="true" />
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm text-neutral-400">
-                <p className="flex items-start gap-2">
-                  <Building2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                  <span>{doctor.hospital}</span>
-                </p>
-                <p className="flex items-center gap-2">
-                  <Phone className="size-4 shrink-0" aria-hidden="true" />
-                  <span>{doctor.phone}</span>
-                </p>
-                <p className="flex min-w-0 items-center gap-2">
-                  <Mail className="size-4 shrink-0" aria-hidden="true" />
-                  <span className="truncate">{doctor.email}</span>
-                </p>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
-    </>
   )
 }

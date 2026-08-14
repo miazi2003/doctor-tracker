@@ -38,7 +38,7 @@ function DashboardSkeleton() {
     <PageContainer className="dark min-h-[calc(100vh-4rem)] bg-[#070908] lg:min-h-[calc(100vh-5rem)]">
       <div role="status" aria-label="Loading dashboard" className="space-y-5">
         <div className="flex items-start justify-between gap-4"><div className="space-y-2"><Skeleton className="h-8 w-56 bg-white/10" /><Skeleton className="h-4 w-80 max-w-full bg-white/10" /></div><Skeleton className="h-11 w-32 rounded-full bg-white/10" /></div>
-        <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">{Array.from({ length: 4 }, (_, index) => <Skeleton key={index} className="h-40 rounded-[1.35rem] bg-white/10" />)}</div>
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 2xl:grid-cols-4">{Array.from({ length: 4 }, (_, index) => <Skeleton key={index} className="h-40 rounded-[1.35rem] bg-white/10" />)}</div>
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(22rem,1fr)]"><Skeleton className="h-[22rem] rounded-[1.35rem] bg-white/10" /><Skeleton className="h-[22rem] rounded-[1.35rem] bg-white/10" /></div>
         <div className="grid gap-4 xl:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.6fr)]"><Skeleton className="h-[22rem] rounded-[1.35rem] bg-white/10" /><Skeleton className="h-[22rem] rounded-[1.35rem] bg-white/10" /></div>
       </div>
@@ -48,14 +48,14 @@ function DashboardSkeleton() {
 
 function MetricCard({ title, value, description, icon: Icon }: { title: string; value: string; description: string; icon: LucideIcon }) {
   return (
-    <article className="group min-w-0 overflow-hidden rounded-[1.35rem] bg-[#0a0c0b] text-neutral-950 shadow-[0_20px_70px_rgba(0,0,0,0.28)]">
-      <div className="flex h-[4.65rem] items-start justify-between gap-3 bg-[linear-gradient(180deg,#ffffff_0%,#e7e7e7_68%,#b9b9b9_100%)] px-5 pt-4">
-        <p className="truncate text-[0.8125rem] font-semibold tracking-[-0.01em]">{title}</p>
-        <span className="-mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-[#050706] text-white shadow-lg transition-transform group-hover:scale-105"><Icon className="size-[1.15rem]" aria-hidden="true" /></span>
+    <article className="group h-full min-w-0 overflow-hidden rounded-[1.35rem] bg-[#0a0c0b] text-neutral-950 shadow-[0_20px_70px_rgba(0,0,0,0.28)]">
+      <div className="flex h-[4.25rem] items-start justify-between gap-1.5 bg-[linear-gradient(180deg,#ffffff_0%,#e7e7e7_68%,#b9b9b9_100%)] px-3 pt-3.5 sm:h-[4.65rem] sm:gap-3 sm:px-5 sm:pt-4">
+        <p className="min-w-0 truncate text-[0.7rem] font-semibold tracking-[-0.01em] sm:text-[0.8125rem]">{title}</p>
+        <span className="-mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-[#050706] text-white shadow-lg transition-transform group-hover:scale-105 sm:size-10"><Icon className="size-4 sm:size-[1.15rem]" aria-hidden="true" /></span>
       </div>
-      <div className="relative -mt-4 min-h-[6.6rem] rounded-[1.35rem] bg-[linear-gradient(145deg,#151817_0%,#0a0c0b_68%)] px-5 py-4 text-white shadow-[0_-12px_28px_rgba(0,0,0,0.34)] before:pointer-events-none before:absolute before:inset-x-8 before:-top-3 before:h-5 before:rounded-full before:bg-black/25 before:blur-lg">
-        <p className="text-[2rem] leading-none font-medium tracking-[-0.045em] tabular-nums">{value}</p>
-        <p className="mt-2.5 text-xs leading-5 text-neutral-400">{description}</p>
+      <div className="relative -mt-4 min-h-[6.6rem] rounded-[1.35rem] bg-[linear-gradient(145deg,#151817_0%,#0a0c0b_68%)] px-3 py-4 text-white shadow-[0_-12px_28px_rgba(0,0,0,0.34)] before:pointer-events-none before:absolute before:inset-x-8 before:-top-3 before:h-5 before:rounded-full before:bg-black/25 before:blur-lg sm:px-5">
+        <p className="text-[1.75rem] leading-none font-medium tracking-[-0.045em] tabular-nums sm:text-[2rem]">{value}</p>
+        <p className="mt-2.5 text-[0.7rem] leading-4 text-neutral-400 sm:text-xs sm:leading-5">{description}</p>
       </div>
     </article>
   )
@@ -161,18 +161,29 @@ function UpcomingPatients({ stats }: { stats: DashboardStats }) {
         <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/patients" />} className="h-8 rounded-full border-white/10 bg-white/[0.04] px-3 text-xs text-neutral-200 hover:bg-white/10 hover:text-white">View all</Button>
       </CardHeader>
       {patients.length === 0 ? <CardContent className="flex min-h-64 items-center justify-center px-6 text-center text-sm text-neutral-500">No upcoming appointments are scheduled.</CardContent> : (
-        <CardContent className="px-5 pt-4 pb-4 sm:px-6">
-          <div className="hidden grid-cols-[minmax(10rem,1.1fr)_minmax(7rem,0.8fr)_minmax(10rem,1fr)_minmax(9rem,0.9fr)] gap-4 border-b border-white/[0.07] px-1 pb-2 text-[0.7rem] font-medium tracking-wide text-neutral-500 uppercase lg:grid"><span>Patient</span><span>Condition</span><span>Appointment</span><span>Doctor</span></div>
-          <ul className="divide-y divide-white/[0.07]">
-            {patients.map((patient) => (
-              <li key={patient.id} className="grid min-w-0 gap-3 py-3 first:pt-2 last:pb-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center lg:grid-cols-[minmax(10rem,1.1fr)_minmax(7rem,0.8fr)_minmax(10rem,1fr)_minmax(9rem,0.9fr)] lg:gap-4">
-                <div className="flex min-w-0 items-center gap-2.5"><Avatar size="sm" className="size-8"><AvatarFallback className="bg-[linear-gradient(145deg,#ffffff,#bdbdbd)] text-[0.68rem] font-bold text-neutral-950">{getInitials(patient.name)}</AvatarFallback></Avatar><span className="truncate text-xs font-medium text-neutral-100" title={patient.name}>{patient.name}</span></div>
-                <Badge variant="outline" className="w-fit max-w-full rounded-full border-white/10 bg-white/[0.05] px-2.5 py-1 text-[0.72rem] font-normal text-neutral-300"><span className="truncate">{patient.condition}</span></Badge>
-                <time dateTime={patient.appointmentDate} className="text-xs leading-5 text-neutral-300">{appointmentDate.format(new Date(patient.appointmentDate))}</time>
-                <span className="truncate text-xs text-neutral-400" title={patient.doctor?.name ?? "Doctor unavailable"}>{patient.doctor?.name ?? "Doctor unavailable"}</span>
-              </li>
-            ))}
-          </ul>
+        <CardContent className="min-w-0 px-0 pt-4 pb-4">
+          <div className="overflow-x-auto px-5 [scrollbar-color:#404040_transparent] sm:px-6">
+            <table className="w-full min-w-[46rem] table-fixed text-left">
+              <thead>
+                <tr className="border-b border-white/[0.07] text-[0.7rem] font-medium tracking-wide text-neutral-500 uppercase">
+                  <th scope="col" className="w-[29%] px-1 pb-2 font-medium">Patient</th>
+                  <th scope="col" className="w-[20%] px-2 pb-2 font-medium">Condition</th>
+                  <th scope="col" className="w-[29%] px-2 pb-2 font-medium">Appointment</th>
+                  <th scope="col" className="w-[22%] px-2 pb-2 font-medium">Doctor</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.07]">
+                {patients.map((patient) => (
+                  <tr key={patient.id}>
+                    <td className="px-1 py-3"><div className="flex min-w-0 items-center gap-2.5"><Avatar size="sm" className="size-8"><AvatarFallback className="bg-[linear-gradient(145deg,#ffffff,#bdbdbd)] text-[0.68rem] font-bold text-neutral-950">{getInitials(patient.name)}</AvatarFallback></Avatar><span className="truncate text-xs font-medium text-neutral-100" title={patient.name}>{patient.name}</span></div></td>
+                    <td className="px-2 py-3"><Badge variant="outline" className="w-fit max-w-full rounded-full border-white/10 bg-white/[0.05] px-2.5 py-1 text-[0.72rem] font-normal text-neutral-300"><span className="truncate">{patient.condition}</span></Badge></td>
+                    <td className="px-2 py-3"><time dateTime={patient.appointmentDate} className="text-xs leading-5 whitespace-nowrap text-neutral-300">{appointmentDate.format(new Date(patient.appointmentDate))}</time></td>
+                    <td className="truncate px-2 py-3 text-xs text-neutral-400" title={patient.doctor?.name ?? "Doctor unavailable"}>{patient.doctor?.name ?? "Doctor unavailable"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       )}
     </Card>
@@ -199,7 +210,7 @@ export function Dashboard() {
       <div className="space-y-5">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div><h2 className="text-2xl font-semibold tracking-[-0.035em] text-white sm:text-[1.75rem]">Analytics dashboard</h2><p className="mt-1.5 max-w-2xl text-sm leading-6 text-neutral-400">Monitor Patient activity, Doctor workloads, and upcoming appointments.</p></div>
-          <div className="flex min-h-11 items-center gap-3">
+          <div className="flex min-h-11 self-end flex-col items-end gap-1.5 sm:self-auto sm:flex-row sm:items-center sm:gap-3">
             <label htmlFor="dashboard-date-range" className="text-xs font-medium text-neutral-400">
               Date range
             </label>
@@ -211,7 +222,7 @@ export function Dashboard() {
           </div>
         </header>
         {isEmpty && <Alert className="border-white/10 bg-white/[0.035] text-neutral-200"><Activity aria-hidden="true" /><AlertTitle>No analytics yet</AlertTitle><AlertDescription className="text-neutral-400">Add Doctors and Patients to begin building dashboard insights. The selected date chart still shows the complete zero-filled period.</AlertDescription></Alert>}
-        <section aria-label="Summary" className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4"><MetricCard title="Total Doctors" value={compactNumber.format(stats.totalDoctors)} description="Active Doctor profiles" icon={Stethoscope} /><MetricCard title="Total Patients" value={compactNumber.format(stats.totalPatients)} description="All Patient records" icon={UsersRound} /><MetricCard title="Patients in period" value={compactNumber.format(stats.patientsInSelectedPeriod)} description={`Appointments in the last ${String(days)} UTC days`} icon={CalendarClock} /><MetricCard title="Average per Doctor" value={compactNumber.format(stats.averagePatientsPerDoctor)} description="Patients divided by total Doctors" icon={UserRoundCheck} /></section>
+        <section aria-label="Summary" className="grid grid-cols-2 gap-2.5 sm:gap-4 2xl:grid-cols-4"><MetricCard title="Total Doctors" value={compactNumber.format(stats.totalDoctors)} description="Active Doctor profiles" icon={Stethoscope} /><MetricCard title="Total Patients" value={compactNumber.format(stats.totalPatients)} description="All Patient records" icon={UsersRound} /><MetricCard title="Patients in period" value={compactNumber.format(stats.patientsInSelectedPeriod)} description={`Appointments in the last ${String(days)} UTC days`} icon={CalendarClock} /><MetricCard title="Average per Doctor" value={compactNumber.format(stats.averagePatientsPerDoctor)} description="Patients divided by total Doctors" icon={UserRoundCheck} /></section>
         <section aria-label="Appointment analytics" className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(22rem,1fr)]"><DateChart stats={stats} /><DoctorChart stats={stats} /></section>
         <section aria-label="Condition and upcoming Patient analytics" className="grid min-w-0 gap-4 xl:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.6fr)]"><ConditionChart stats={stats} /><UpcomingPatients stats={stats} /></section>
       </div>
