@@ -8,6 +8,7 @@ import { AppError } from "./errors/app-error.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import { verifyRequestOrigin } from "./middleware/origin.middleware.js";
 import { authRouter } from "./routes/auth.route.js";
+import { doctorRouter } from "./routes/doctor.route.js";
 import { healthRouter } from "./routes/health.route.js";
 
 export const app = express();
@@ -39,5 +40,6 @@ app.use(verifyRequestOrigin);
 
 app.use("/api/health", healthRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/doctors", doctorRouter);
 
 app.use(errorHandler);
