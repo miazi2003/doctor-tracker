@@ -13,15 +13,15 @@ export function AdminHeader() {
   const title = getAdminPageTitle(pathname)
 
   return (
-    <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white">
-      <div className="flex h-16 min-w-0 items-center gap-3 px-4 sm:px-6 lg:h-20 lg:px-8 xl:px-10">
+    <header className="sticky top-0 z-20 border-b border-white/10 bg-[#070908] text-white">
+      <div className="flex h-16 min-w-0 items-center gap-3 px-4 sm:px-6 lg:h-20 lg:px-6 xl:px-7">
         <MobileNavigation />
-        <Separator orientation="vertical" className="h-5 lg:hidden" />
+        <Separator orientation="vertical" className="h-5 bg-white/10 lg:hidden" />
         <div className="min-w-0 flex-1">
-          <p className="hidden text-xs font-medium tracking-wide text-neutral-500 sm:block">
+          <p className="hidden text-[0.65rem] font-medium tracking-[0.12em] text-neutral-500 uppercase sm:block">
             Admin portal
           </p>
-          <h1 className="truncate text-lg font-semibold tracking-[-0.02em] text-neutral-950 sm:mt-0.5 sm:text-xl">
+          <h1 className="truncate text-base font-medium tracking-[-0.02em] text-neutral-100 sm:mt-0.5 sm:text-lg">
             {title}
           </h1>
         </div>

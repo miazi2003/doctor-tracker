@@ -190,7 +190,7 @@ export function CreateDoctorForm() {
           <h2 className="mt-4 text-2xl font-semibold tracking-[-0.025em] sm:text-3xl">
             Add a doctor
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-600">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-400">
             Create a profile with the doctor&apos;s practice and contact information.
           </p>
         </div>

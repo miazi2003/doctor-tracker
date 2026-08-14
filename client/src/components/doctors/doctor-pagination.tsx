@@ -21,7 +21,7 @@ export function DoctorPagination({
   const hasNext = pagination.page < pagination.totalPages
 
   return (
-    <div className="flex flex-col items-center justify-between gap-3 border-t border-neutral-200 pt-5 sm:flex-row">
+    <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-5 sm:flex-row">
       <p className="text-sm text-neutral-500">
         Page {pagination.page} of {pagination.totalPages} · {pagination.total} doctors
       </p>

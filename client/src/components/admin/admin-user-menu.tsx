@@ -61,7 +61,7 @@ export function AdminUserMenu() {
       {logoutError && (
         <Alert
           variant="destructive"
-          className="fixed inset-x-4 top-[4.5rem] z-40 py-2 shadow-sm md:static md:max-w-xs"
+          className="fixed inset-x-4 top-[4.5rem] z-40 border-red-400/20 bg-red-950/90 py-2 text-red-100 shadow-sm md:static md:max-w-xs"
         >
           <AlertDescription>{logoutError}</AlertDescription>
         </Alert>
@@ -72,18 +72,18 @@ export function AdminUserMenu() {
           render={
             <Button
               variant="ghost"
-              className="h-auto min-w-0 gap-2 px-1.5 py-1 hover:bg-neutral-100 sm:gap-3 sm:px-2"
+              className="h-auto min-w-0 gap-2 rounded-full px-1.5 py-1 text-neutral-100 hover:bg-white/[0.07] hover:text-white sm:gap-3 sm:px-2"
               aria-label="Open administrator menu"
             />
           }
         >
           <Avatar size="lg">
-            <AvatarFallback className="bg-neutral-950 text-xs font-semibold text-white">
+            <AvatarFallback className="bg-[linear-gradient(145deg,#262a28,#101210)] text-xs font-semibold text-white ring-1 ring-white/15">
               {getInitials(admin.name)}
             </AvatarFallback>
           </Avatar>
           <span className="hidden min-w-0 text-left sm:block">
-            <span className="block max-w-44 truncate text-sm font-medium text-neutral-950">
+            <span className="block max-w-44 truncate text-sm font-medium text-neutral-100">
               {admin.name}
             </span>
             <span className="block max-w-44 truncate text-xs text-neutral-500">
@@ -93,25 +93,25 @@ export function AdminUserMenu() {
           {isLoggingOut ? (
             <LoaderCircle className="size-4 animate-spin text-neutral-500" aria-hidden="true" />
           ) : (
-            <ChevronDown className="hidden size-4 text-neutral-400 sm:block" aria-hidden="true" />
+            <ChevronDown className="hidden size-4 text-neutral-500 sm:block" aria-hidden="true" />
           )}
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-64">
+        <DropdownMenuContent align="end" className="w-64 border-white/10 bg-[#111412] text-neutral-100 ring-white/10">
           <DropdownMenuGroup>
             <DropdownMenuLabel className="px-2 py-2">
-              <span className="block truncate text-sm font-medium text-foreground">
+              <span className="block truncate text-sm font-medium text-neutral-100">
                 {admin.name}
               </span>
-              <span className="mt-0.5 block truncate font-normal text-muted-foreground">
+              <span className="mt-0.5 block truncate font-normal text-neutral-400">
                 {admin.email}
               </span>
             </DropdownMenuLabel>
           </DropdownMenuGroup>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="bg-white/10" />
           <DropdownMenuItem
             disabled={isLoggingOut}
             onClick={() => void handleLogout()}
-            className="min-h-9 px-2"
+            className="min-h-9 px-2 focus:bg-white/10 focus:text-white"
           >
             {isLoggingOut ? (
               <LoaderCircle className="animate-spin" aria-hidden="true" />

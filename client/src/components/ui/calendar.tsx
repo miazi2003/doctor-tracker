@@ -139,7 +139,7 @@ function Calendar({
             <div
               data-slot="calendar"
               ref={rootRef}
-              className={cn(className)}
+              className={cn("rounded-xl border border-white/10", className)}
               {...props}
             />
           )

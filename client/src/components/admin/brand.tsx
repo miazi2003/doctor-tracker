@@ -3,14 +3,14 @@ import { HeartPulse } from "lucide-react"
 export function Brand() {
   return (
     <div className="flex items-center gap-3">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-white">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.12),rgba(255,255,255,0.035))] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
         <HeartPulse className="size-5" aria-hidden="true" />
       </span>
       <div className="min-w-0">
-        <p className="truncate text-sm font-semibold tracking-[-0.01em] text-white">
+        <p className="truncate text-sm font-semibold tracking-[-0.02em] text-white">
           Doctor Tracker
         </p>
-        <p className="text-xs text-neutral-500">Admin workspace</p>
+        <p className="mt-0.5 text-[0.68rem] text-neutral-500">Admin workspace</p>
       </div>
     </div>
   )

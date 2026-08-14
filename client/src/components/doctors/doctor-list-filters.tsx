@@ -147,7 +147,7 @@ function FilterButton({ activeCount }: { activeCount: number }) {
     <>
       <ListFilter aria-hidden="true" />
       {activeCount > 0 && (
-        <Badge className="absolute -top-1.5 -right-1.5 h-4 min-w-4 border-2 border-white px-1 text-[0.625rem]">
+        <Badge className="absolute -top-1.5 -right-1.5 h-4 min-w-4 border-2 border-[#070908] px-1 text-[0.625rem]">
           {activeCount}
         </Badge>
       )}
@@ -370,7 +370,7 @@ export function DoctorListFilters({
 
   return (
     <section aria-label="Doctor search and filters" className="min-w-0 space-y-3">
-      <div className="flex min-w-0 flex-col gap-2 rounded-xl border border-neutral-200 bg-white p-2 sm:flex-row sm:items-center">
+      <div className="flex min-w-0 flex-col gap-2 rounded-xl border border-white/10 bg-white/[0.035] p-2 sm:flex-row sm:items-center">
         <div className="relative min-w-0 flex-1">
           <Search
             className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-neutral-400"
@@ -382,7 +382,7 @@ export function DoctorListFilters({
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Search by name, hospital, specialization, email, or phone..."
             aria-label="Search doctors"
-            className="border-transparent bg-neutral-50 pl-9 shadow-none focus-visible:bg-white"
+            className="border-transparent bg-white/[0.035] pl-9 shadow-none focus-visible:bg-white/[0.06]"
           />
         </div>
 
@@ -472,14 +472,14 @@ export function DoctorListFilters({
                   aria-label={`Remove ${badge.label} filter`}
                 />
               }
-              className="h-7 max-w-full gap-1.5 px-2.5 hover:bg-neutral-100"
+              className="h-7 max-w-full gap-1.5 px-2.5 hover:bg-white/[0.06]"
             >
               <span className="truncate">{badge.label}</span>
               <X aria-hidden="true" />
             </Badge>
           ))}
           {hasFilters && (
-            <Button variant="ghost" size="sm" onClick={onClear} className="text-neutral-600">
+            <Button variant="ghost" size="sm" onClick={onClear} className="text-neutral-400">
               Clear all
             </Button>
           )}

@@ -5,21 +5,21 @@ import { Activity, CalendarClock, LoaderCircle, Stethoscope, UserRoundCheck, Use
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useMemo } from "react"
-import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from "recharts"
 
 import { PageContainer } from "@/components/admin/page-container"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DashboardApiError } from "@/features/dashboard/dashboard.api"
 import { dashboardStatsQueryOptions } from "@/features/dashboard/dashboard.queries"
 import { dashboardDays, type DashboardDays, type DashboardStats } from "@/features/dashboard/dashboard.schema"
+import { cn } from "@/lib/utils"
 
 const compactNumber = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 })
 const compactDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" })
@@ -27,28 +27,91 @@ const fullDate = new Intl.DateTimeFormat("en-US", { weekday: "long", year: "nume
 const appointmentDate = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC", timeZoneName: "short" })
 const dateFromDay = (value: string): Date => new Date(`${value}T00:00:00.000Z`)
 const isDashboardDays = (value: number): value is DashboardDays => dashboardDays.includes(value as DashboardDays)
-const dateChartConfig = { patients: { label: "Patients", color: "var(--chart-5)" } } satisfies ChartConfig
-const doctorChartConfig = { patients: { label: "Patients", color: "var(--chart-4)" } } satisfies ChartConfig
-const conditionColors = ["var(--chart-5)", "var(--chart-4)", "var(--chart-3)", "var(--chart-2)", "var(--chart-1)"] as const
+const dateChartConfig = { patients: { label: "Patients", color: "#f5f5f5" } } satisfies ChartConfig
+const doctorChartConfig = { patients: { label: "Patients", color: "#d4d4d4" } } satisfies ChartConfig
+const conditionColors = ["#fafafa", "#d4d4d4", "#a3a3a3", "#737373", "#525252"] as const
+const dashboardCardClass = "gap-0 rounded-[1.35rem] bg-[linear-gradient(145deg,rgba(255,255,255,0.055),rgba(255,255,255,0.018))] py-0 text-neutral-100 ring-1 ring-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.22)]"
 
 function DashboardSkeleton() {
-  return <PageContainer><div role="status" aria-label="Loading dashboard" className="space-y-6"><div className="flex items-start justify-between gap-4"><div className="space-y-2"><Skeleton className="h-8 w-56" /><Skeleton className="h-4 w-80 max-w-full" /></div><Skeleton className="h-8 w-28" /></div><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{Array.from({ length: 4 }, (_, index) => <Card key={index}><CardHeader><Skeleton className="h-4 w-28" /><Skeleton className="h-8 w-20" /></CardHeader></Card>)}</div><div className="grid gap-4 xl:grid-cols-2"><Skeleton className="h-80 w-full rounded-xl" /><Skeleton className="h-80 w-full rounded-xl" /></div><div className="grid gap-4 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"><Skeleton className="h-80 w-full rounded-xl" /><Skeleton className="h-80 w-full rounded-xl" /></div></div></PageContainer>
+  return (
+    <PageContainer className="dark min-h-[calc(100vh-4rem)] bg-[#070908] lg:min-h-[calc(100vh-5rem)]">
+      <div role="status" aria-label="Loading dashboard" className="space-y-5">
+        <div className="flex items-start justify-between gap-4"><div className="space-y-2"><Skeleton className="h-8 w-56 bg-white/10" /><Skeleton className="h-4 w-80 max-w-full bg-white/10" /></div><Skeleton className="h-11 w-32 rounded-full bg-white/10" /></div>
+        <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">{Array.from({ length: 4 }, (_, index) => <Skeleton key={index} className="h-40 rounded-[1.35rem] bg-white/10" />)}</div>
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(22rem,1fr)]"><Skeleton className="h-[22rem] rounded-[1.35rem] bg-white/10" /><Skeleton className="h-[22rem] rounded-[1.35rem] bg-white/10" /></div>
+        <div className="grid gap-4 xl:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.6fr)]"><Skeleton className="h-[22rem] rounded-[1.35rem] bg-white/10" /><Skeleton className="h-[22rem] rounded-[1.35rem] bg-white/10" /></div>
+      </div>
+    </PageContainer>
+  )
 }
 
 function MetricCard({ title, value, description, icon: Icon }: { title: string; value: string; description: string; icon: LucideIcon }) {
-  return <Card><CardHeader className="flex flex-row items-start justify-between gap-4"><div><CardDescription>{title}</CardDescription><CardTitle className="mt-2 text-3xl tabular-nums">{value}</CardTitle></div><span className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-muted/50 text-muted-foreground"><Icon className="size-4.5" aria-hidden="true" /></span></CardHeader><CardContent><p className="text-xs text-muted-foreground">{description}</p></CardContent></Card>
+  return (
+    <article className="group min-w-0 overflow-hidden rounded-[1.35rem] bg-[#0a0c0b] text-neutral-950 shadow-[0_20px_70px_rgba(0,0,0,0.28)]">
+      <div className="flex h-[4.65rem] items-start justify-between gap-3 bg-[linear-gradient(180deg,#ffffff_0%,#e7e7e7_68%,#b9b9b9_100%)] px-5 pt-4">
+        <p className="truncate text-[0.78rem] font-semibold tracking-[-0.01em]">{title}</p>
+        <span className="-mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-[#050706] text-white shadow-lg transition-transform group-hover:scale-105"><Icon className="size-[1.15rem]" aria-hidden="true" /></span>
+      </div>
+      <div className="relative -mt-4 min-h-[6.6rem] rounded-[1.35rem] bg-[linear-gradient(145deg,#151817_0%,#0a0c0b_68%)] px-5 py-4 text-white shadow-[0_-12px_28px_rgba(0,0,0,0.34)] before:pointer-events-none before:absolute before:inset-x-8 before:-top-3 before:h-5 before:rounded-full before:bg-black/25 before:blur-lg">
+        <p className="text-[2rem] leading-none font-medium tracking-[-0.045em] tabular-nums">{value}</p>
+        <p className="mt-2.5 text-xs leading-5 text-neutral-400">{description}</p>
+      </div>
+    </article>
+  )
 }
 
-function EmptyChart({ message }: { message: string }) { return <div className="flex h-64 items-center justify-center rounded-lg border border-dashed px-6 text-center text-sm text-muted-foreground">{message}</div> }
+function EmptyChart({ message }: { message: string }) {
+  return <div className="flex h-64 items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-6 text-center text-sm text-neutral-500">{message}</div>
+}
+
+function PanelHeading({ title, description }: { title: string; description: string }) {
+  return <CardHeader className="gap-1.5 px-5 pt-5 pb-0 sm:px-6 sm:pt-6"><CardTitle className="text-base font-medium tracking-[-0.02em] text-white">{title}</CardTitle><CardDescription className="text-xs leading-5 text-neutral-500">{description}</CardDescription></CardHeader>
+}
 
 function DateChart({ stats }: { stats: DashboardStats }) {
   const data = stats.patientsByDate.map((item) => ({ ...item, patients: item.count }))
-  return <Card className="min-w-0"><CardHeader><CardTitle>Patients by date</CardTitle><CardDescription>Appointments across the selected UTC calendar period.</CardDescription></CardHeader><CardContent><ChartContainer config={dateChartConfig} className="h-64 w-full min-w-0 aspect-auto" role="img" aria-label="Line chart of patients by appointment date"><LineChart data={data} margin={{ left: 0, right: 10, top: 8, bottom: 0 }} accessibilityLayer><CartesianGrid vertical={false} /><XAxis dataKey="date" tickLine={false} axisLine={false} minTickGap={28} tickFormatter={(value: string) => compactDate.format(dateFromDay(value))} /><YAxis allowDecimals={false} tickLine={false} axisLine={false} width={28} /><ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" labelFormatter={(value) => fullDate.format(dateFromDay(String(value)))} />} /><Line dataKey="patients" type="monotone" stroke="var(--color-patients)" strokeWidth={2} dot={false} isAnimationActive={false} /></LineChart></ChartContainer></CardContent></Card>
+  return (
+    <Card className={cn(dashboardCardClass, "min-w-0")}>
+      <PanelHeading title="Patients by date" description="Appointments across the selected UTC calendar period." />
+      <CardContent className="px-2 pt-4 pb-3 sm:px-4">
+        <ChartContainer config={dateChartConfig} className="h-64 w-full min-w-0 aspect-auto text-neutral-500 [&_.recharts-cartesian-axis-tick_text]:fill-neutral-500 [&_.recharts-cartesian-grid_line]:stroke-white/[0.07]" role="img" aria-label="Area chart of patients by appointment date">
+          <AreaChart data={data} margin={{ left: 0, right: 10, top: 8, bottom: 0 }} accessibilityLayer>
+            <defs><linearGradient id="patientAreaFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ffffff" stopOpacity={0.44} /><stop offset="100%" stopColor="#ffffff" stopOpacity={0.015} /></linearGradient></defs>
+            <CartesianGrid vertical={false} strokeDasharray="3 5" />
+            <XAxis dataKey="date" tickLine={false} axisLine={false} minTickGap={28} tickMargin={12} tickFormatter={(value: string) => compactDate.format(dateFromDay(value))} />
+            <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={28} />
+            <ChartTooltip cursor={{ stroke: "rgba(255,255,255,0.14)" }} content={<ChartTooltipContent className="border-white/10 bg-[#111412] text-neutral-100" indicator="line" labelFormatter={(value) => fullDate.format(dateFromDay(String(value)))} />} />
+            <Area dataKey="patients" type="monotone" fill="url(#patientAreaFill)" stroke="var(--color-patients)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#fff", stroke: "#0a0c0b", strokeWidth: 2 }} isAnimationActive={false} />
+          </AreaChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  )
 }
 
 function DoctorChart({ stats }: { stats: DashboardStats }) {
   const data = stats.patientsPerDoctor.map((item) => ({ doctor: item.doctor?.name ?? "Doctor unavailable", patients: item.count }))
-  return <Card className="min-w-0"><CardHeader><CardTitle>Patients per Doctor</CardTitle><CardDescription>Top Doctors by assigned Patient count.</CardDescription></CardHeader><CardContent>{data.length === 0 ? <EmptyChart message="Patient assignments will appear here once records are added." /> : <ChartContainer config={doctorChartConfig} className="h-64 w-full min-w-0 aspect-auto" role="img" aria-label="Horizontal bar chart of patients per Doctor"><BarChart data={data} layout="vertical" margin={{ left: 8, right: 16 }} accessibilityLayer><CartesianGrid horizontal={false} /><XAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} /><YAxis dataKey="doctor" type="category" width={112} tickLine={false} axisLine={false} tickFormatter={(value: string) => value.length > 17 ? `${value.slice(0, 16)}…` : value} /><ChartTooltip cursor={false} content={<ChartTooltipContent labelFormatter={(value) => String(value)} />} /><Bar dataKey="patients" fill="var(--color-patients)" radius={[0, 4, 4, 0]} isAnimationActive={false} /></BarChart></ChartContainer>}</CardContent></Card>
+  return (
+    <Card className={cn(dashboardCardClass, "min-w-0")}>
+      <PanelHeading title="Patients per Doctor" description="Top Doctors by assigned Patient count." />
+      <CardContent className="min-w-0 px-3 pt-4 pb-3 sm:px-5">
+        {data.length === 0 ? <EmptyChart message="Patient assignments will appear here once records are added." /> : (
+          <div className="overflow-x-auto pb-1 [scrollbar-color:#404040_transparent]">
+            <ChartContainer config={doctorChartConfig} className="h-64 aspect-auto text-neutral-500 [&_.recharts-cartesian-axis-tick_text]:fill-neutral-400 [&_.recharts-cartesian-grid_line]:stroke-white/[0.06]" style={{ minWidth: Math.max(576, data.length * 92) }} role="img" aria-label="Vertical bar chart of patients per Doctor">
+              <BarChart data={data} margin={{ left: 0, right: 0, top: 8, bottom: 8 }} accessibilityLayer>
+                <defs><linearGradient id="doctorBarFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#f5f5f5" stopOpacity={0.95} /><stop offset="100%" stopColor="#737373" stopOpacity={0.68} /></linearGradient></defs>
+                <CartesianGrid vertical={false} strokeDasharray="3 5" />
+                <XAxis dataKey="doctor" type="category" interval={0} tickLine={false} axisLine={false} tickMargin={12} height={44} />
+                <YAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} width={28} />
+                <ChartTooltip cursor={{ fill: "rgba(255,255,255,0.035)", radius: 14 }} content={<ChartTooltipContent className="border-white/10 bg-[#111412] text-neutral-100" labelFormatter={(value) => String(value)} />} />
+                <Bar dataKey="patients" fill="url(#doctorBarFill)" radius={[16, 16, 16, 16]} maxBarSize={58} isAnimationActive={false} />
+              </BarChart>
+            </ChartContainer>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
 }
 
 function ConditionChart({ stats }: { stats: DashboardStats }) {
@@ -56,32 +119,98 @@ function ConditionChart({ stats }: { stats: DashboardStats }) {
     const chartConfig: ChartConfig = {}
     const chartData = stats.patientsByCondition.map((item, index) => {
       const key = `condition${String(index)}`
-      chartConfig[key] = { label: item.condition, color: conditionColors[index % conditionColors.length] ?? conditionColors[0] }
-      return { ...item, key, fill: `var(--color-${key})` }
+      const color = conditionColors[index % conditionColors.length] ?? conditionColors[0]
+      chartConfig[key] = { label: item.condition, color }
+      return { ...item, key, color, fill: `var(--color-${key})` }
     })
     return { data: chartData, config: chartConfig }
   }, [stats.patientsByCondition])
-  return <Card className="min-w-0"><CardHeader><CardTitle>Patients by condition</CardTitle><CardDescription>Leading conditions, with smaller categories grouped as Other.</CardDescription></CardHeader><CardContent>{data.length === 0 ? <EmptyChart message="Condition distribution will appear once Patients are added." /> : <ChartContainer config={config} className="h-72 w-full min-w-0 aspect-auto" role="img" aria-label="Donut chart of patients by condition"><PieChart accessibilityLayer><ChartTooltip content={<ChartTooltipContent nameKey="key" hideLabel />} /><Pie data={data} dataKey="count" nameKey="key" innerRadius={54} outerRadius={82} paddingAngle={2} isAnimationActive={false}>{data.map((item) => <Cell key={item.key} fill={item.fill} />)}</Pie><ChartLegend content={<ChartLegendContent nameKey="key" className="flex-wrap gap-x-3 gap-y-2 text-xs" />} /></PieChart></ChartContainer>}</CardContent></Card>
+  return (
+    <Card className={cn(dashboardCardClass, "min-w-0")}>
+      <PanelHeading title="Patients by condition" description="Leading conditions, with smaller categories grouped as Other." />
+      <CardContent className="pt-4 pb-5 sm:px-5">
+        {data.length === 0 ? <EmptyChart message="Condition distribution will appear once Patients are added." /> : (
+          <div className="grid items-center gap-2 sm:grid-cols-[minmax(10rem,0.85fr)_minmax(11rem,1fr)] xl:grid-cols-1 2xl:grid-cols-[minmax(10rem,0.85fr)_minmax(11rem,1fr)]">
+            <ChartContainer config={config} className="mx-auto h-52 w-full min-w-0 max-w-56 aspect-auto" role="img" aria-label="Donut chart of patients by condition">
+              <PieChart accessibilityLayer>
+                <ChartTooltip content={<ChartTooltipContent className="border-white/10 bg-[#111412] text-neutral-100" nameKey="key" hideLabel />} />
+                <Pie data={data} dataKey="count" nameKey="key" innerRadius={48} outerRadius={78} paddingAngle={2} stroke="#0a0c0b" strokeWidth={1} isAnimationActive={false}>{data.map((item) => <Cell key={item.key} fill={item.fill} />)}</Pie>
+              </PieChart>
+            </ChartContainer>
+            <ul className="grid min-w-0 gap-2" aria-label="Patient condition totals">
+              {data.map((item) => <li key={item.key} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-[0.7rem]"><span className="size-2.5 rounded-[0.2rem]" style={{ backgroundColor: item.color }} aria-hidden="true" /><span className="truncate text-neutral-300" title={item.condition}>{item.condition}</span><span className="text-right font-medium text-neutral-400 tabular-nums">{compactNumber.format(item.count)}</span></li>)}
+            </ul>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+function getInitials(name: string): string {
+  return name.trim().split(/\s+/u).filter(Boolean).slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase() || "P"
 }
 
 function UpcomingPatients({ stats }: { stats: DashboardStats }) {
   const patients = stats.upcomingPatients
-  return <Card className="min-w-0"><CardHeader className="flex flex-row items-start justify-between gap-4"><div><CardTitle>Upcoming Patients</CardTitle><CardDescription>Next scheduled appointments in UTC.</CardDescription></div><Button variant="outline" size="sm" nativeButton={false} render={<Link href="/patients" />}>View all</Button></CardHeader><Separator />{patients.length === 0 ? <CardContent className="flex min-h-56 items-center justify-center text-center text-sm text-muted-foreground">No upcoming appointments are scheduled.</CardContent> : <CardContent className="px-0"><div className="hidden md:block"><Table><TableHeader><TableRow><TableHead className="pl-6">Patient</TableHead><TableHead>Condition</TableHead><TableHead>Appointment</TableHead><TableHead className="pr-6">Doctor</TableHead></TableRow></TableHeader><TableBody>{patients.map((patient) => <TableRow key={patient.id}><TableCell className="pl-6 font-medium">{patient.name}</TableCell><TableCell><Badge variant="outline">{patient.condition}</Badge></TableCell><TableCell className="whitespace-nowrap"><time dateTime={patient.appointmentDate}>{appointmentDate.format(new Date(patient.appointmentDate))}</time></TableCell><TableCell className="pr-6">{patient.doctor?.name ?? "Doctor unavailable"}</TableCell></TableRow>)}</TableBody></Table></div><div className="grid gap-3 p-4 md:hidden">{patients.map((patient) => <div key={patient.id} className="rounded-lg border p-4"><div className="flex items-start justify-between gap-3"><p className="font-medium">{patient.name}</p><Badge variant="outline" className="max-w-36 truncate">{patient.condition}</Badge></div><dl className="mt-4 grid gap-3 text-sm"><div><dt className="text-xs text-muted-foreground">Appointment</dt><dd className="mt-1"><time dateTime={patient.appointmentDate}>{appointmentDate.format(new Date(patient.appointmentDate))}</time></dd></div><div><dt className="text-xs text-muted-foreground">Doctor</dt><dd className="mt-1">{patient.doctor?.name ?? "Doctor unavailable"}</dd></div></dl></div>)}</div></CardContent>}</Card>
+  return (
+    <Card className={cn(dashboardCardClass, "min-w-0")}>
+      <CardHeader className="flex flex-row items-start justify-between gap-4 px-5 pt-5 pb-0 sm:px-6 sm:pt-6">
+        <div className="min-w-0"><CardTitle className="text-base font-medium tracking-[-0.02em] text-white">Upcoming Patients</CardTitle><CardDescription className="mt-1.5 text-xs leading-5 text-neutral-500">Next scheduled appointments in UTC.</CardDescription></div>
+        <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/patients" />} className="h-8 rounded-full border-white/10 bg-white/[0.04] px-3 text-xs text-neutral-200 hover:bg-white/10 hover:text-white">View all</Button>
+      </CardHeader>
+      {patients.length === 0 ? <CardContent className="flex min-h-64 items-center justify-center px-6 text-center text-sm text-neutral-500">No upcoming appointments are scheduled.</CardContent> : (
+        <CardContent className="px-5 pt-4 pb-4 sm:px-6">
+          <div className="hidden grid-cols-[minmax(10rem,1.1fr)_minmax(7rem,0.8fr)_minmax(10rem,1fr)_minmax(9rem,0.9fr)] gap-4 border-b border-white/[0.07] px-1 pb-2 text-[0.65rem] font-medium tracking-wide text-neutral-500 uppercase lg:grid"><span>Patient</span><span>Condition</span><span>Appointment</span><span>Doctor</span></div>
+          <ul className="divide-y divide-white/[0.07]">
+            {patients.map((patient) => (
+              <li key={patient.id} className="grid min-w-0 gap-3 py-3 first:pt-2 last:pb-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center lg:grid-cols-[minmax(10rem,1.1fr)_minmax(7rem,0.8fr)_minmax(10rem,1fr)_minmax(9rem,0.9fr)] lg:gap-4">
+                <div className="flex min-w-0 items-center gap-2.5"><Avatar size="sm" className="size-8"><AvatarFallback className="bg-[linear-gradient(145deg,#ffffff,#bdbdbd)] text-[0.6rem] font-bold text-neutral-950">{getInitials(patient.name)}</AvatarFallback></Avatar><span className="truncate text-xs font-medium text-neutral-100" title={patient.name}>{patient.name}</span></div>
+                <Badge variant="outline" className="w-fit max-w-full rounded-full border-white/10 bg-white/[0.05] px-2.5 py-1 text-[0.65rem] font-normal text-neutral-300"><span className="truncate">{patient.condition}</span></Badge>
+                <time dateTime={patient.appointmentDate} className="text-xs leading-5 text-neutral-300">{appointmentDate.format(new Date(patient.appointmentDate))}</time>
+                <span className="truncate text-xs text-neutral-400" title={patient.doctor?.name ?? "Doctor unavailable"}>{patient.doctor?.name ?? "Doctor unavailable"}</span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      )}
+    </Card>
+  )
 }
 
 export function Dashboard() {
-  const router = useRouter(), pathname = usePathname(), searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const requestedDays = Number(searchParams.get("days") ?? "30")
   const days: DashboardDays = isDashboardDays(requestedDays) ? requestedDays : 30
   const query = useQuery(dashboardStatsQueryOptions(days))
   if (query.isPending) return <DashboardSkeleton />
-  if (query.isError) return <PageContainer><div className="space-y-5"><div><p className="text-sm font-medium text-neutral-500">Overview</p><h2 className="mt-1 text-2xl font-semibold tracking-[-0.025em] sm:text-3xl">Analytics dashboard</h2></div><Alert variant="destructive"><AlertTitle>Dashboard analytics could not be loaded</AlertTitle><AlertDescription className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"><span>{query.error instanceof DashboardApiError && query.error.kind === "network" ? "Check your connection and try again." : "The server returned an unexpected response. Please try again."}</span><Button variant="outline" size="sm" onClick={() => void query.refetch()}>Try again</Button></AlertDescription></Alert></div></PageContainer>
+  if (query.isError) return (
+    <PageContainer className="dark min-h-[calc(100vh-4rem)] bg-[#070908] text-neutral-100 lg:min-h-[calc(100vh-5rem)]">
+      <div className="space-y-5"><div><p className="text-sm font-medium text-neutral-500">Overview</p><h2 className="mt-1 text-2xl font-semibold tracking-[-0.025em] sm:text-3xl">Analytics dashboard</h2></div><Alert variant="destructive" className="border-red-400/20 bg-red-950/20 text-red-100"><AlertTitle>Dashboard analytics could not be loaded</AlertTitle><AlertDescription className="flex flex-col items-start justify-between gap-4 text-red-200/80 sm:flex-row sm:items-center"><span>{query.error instanceof DashboardApiError && query.error.kind === "network" ? "Check your connection and try again." : "The server returned an unexpected response. Please try again."}</span><Button variant="outline" size="sm" className="rounded-full border-red-200/20 bg-white/5" onClick={() => void query.refetch()}>Try again</Button></AlertDescription></Alert></div>
+    </PageContainer>
+  )
   const stats = query.data
   const isEmpty = stats.totalDoctors === 0 && stats.totalPatients === 0
-  return <PageContainer><div className="space-y-6"><header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-sm font-medium text-neutral-500">Overview</p><h2 className="mt-1 text-2xl font-semibold tracking-[-0.025em] sm:text-3xl">Analytics dashboard</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-600">Monitor Patient activity, Doctor workloads, and upcoming appointments.</p></div><div className="flex items-center gap-2"><Select value={String(days)} onValueChange={(value) => { const nextDays = Number(value); if (!isDashboardDays(nextDays)) return; const next = new URLSearchParams(searchParams.toString()); next.set("days", String(nextDays)); router.replace(`${pathname}?${next.toString()}`, { scroll: false }) }}><SelectTrigger className="w-32" aria-label="Dashboard date range"><SelectValue /></SelectTrigger><SelectContent>{dashboardDays.map((option) => <SelectItem key={option} value={String(option)}>Last {option} days</SelectItem>)}</SelectContent></Select>{query.isFetching && <span role="status" className="flex items-center gap-1.5 text-xs text-muted-foreground"><LoaderCircle className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />Updating</span>}</div></header>
-    {isEmpty && <Alert><Activity aria-hidden="true" /><AlertTitle>No analytics yet</AlertTitle><AlertDescription>Add Doctors and Patients to begin building dashboard insights. The selected date chart still shows the complete zero-filled period.</AlertDescription></Alert>}
-    <section aria-label="Summary" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><MetricCard title="Total Doctors" value={compactNumber.format(stats.totalDoctors)} description="Active Doctor profiles" icon={Stethoscope} /><MetricCard title="Total Patients" value={compactNumber.format(stats.totalPatients)} description="All Patient records" icon={UsersRound} /><MetricCard title="Patients in period" value={compactNumber.format(stats.patientsInSelectedPeriod)} description={`Appointments in the last ${String(days)} UTC days`} icon={CalendarClock} /><MetricCard title="Average per Doctor" value={compactNumber.format(stats.averagePatientsPerDoctor)} description="Patients divided by total Doctors" icon={UserRoundCheck} /></section>
-    <section aria-label="Appointment analytics" className="grid min-w-0 gap-4 xl:grid-cols-2"><DateChart stats={stats} /><DoctorChart stats={stats} /></section>
-    <section aria-label="Condition and upcoming Patient analytics" className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"><ConditionChart stats={stats} /><UpcomingPatients stats={stats} /></section>
-  </div></PageContainer>
+  return (
+    <PageContainer className="dark min-h-[calc(100vh-4rem)] bg-[radial-gradient(circle_at_65%_-10%,rgba(255,255,255,0.045),transparent_27%),#070908] text-neutral-100 lg:min-h-[calc(100vh-5rem)] lg:px-6 lg:py-7 xl:px-7">
+      <div className="space-y-5">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div><h2 className="text-2xl font-semibold tracking-[-0.035em] text-white sm:text-[1.75rem]">Analytics dashboard</h2><p className="mt-1.5 max-w-2xl text-sm leading-6 text-neutral-400">Monitor Patient activity, Doctor workloads, and upcoming appointments.</p></div>
+          <div className="flex min-h-11 items-center gap-2">
+            <Select value={String(days)} onValueChange={(value) => { const nextDays = Number(value); if (!isDashboardDays(nextDays)) return; const next = new URLSearchParams(searchParams.toString()); next.set("days", String(nextDays)); router.replace(`${pathname}?${next.toString()}`, { scroll: false }) }}>
+              <SelectTrigger className="h-11 w-36 rounded-full border-white/10 bg-white/[0.045] px-4 text-neutral-100 hover:bg-white/[0.07]" aria-label="Dashboard date range"><SelectValue /></SelectTrigger>
+              <SelectContent className="border-white/10 bg-[#111412] text-neutral-100 ring-white/10">{dashboardDays.map((option) => <SelectItem key={option} value={String(option)} className="focus:bg-white/10 focus:text-white">Last {option} days</SelectItem>)}</SelectContent>
+            </Select>
+            {query.isFetching && <span role="status" className="flex items-center gap-1.5 text-xs text-neutral-500"><LoaderCircle className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />Updating</span>}
+          </div>
+        </header>
+        {isEmpty && <Alert className="border-white/10 bg-white/[0.035] text-neutral-200"><Activity aria-hidden="true" /><AlertTitle>No analytics yet</AlertTitle><AlertDescription className="text-neutral-400">Add Doctors and Patients to begin building dashboard insights. The selected date chart still shows the complete zero-filled period.</AlertDescription></Alert>}
+        <section aria-label="Summary" className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4"><MetricCard title="Total Doctors" value={compactNumber.format(stats.totalDoctors)} description="Active Doctor profiles" icon={Stethoscope} /><MetricCard title="Total Patients" value={compactNumber.format(stats.totalPatients)} description="All Patient records" icon={UsersRound} /><MetricCard title="Patients in period" value={compactNumber.format(stats.patientsInSelectedPeriod)} description={`Appointments in the last ${String(days)} UTC days`} icon={CalendarClock} /><MetricCard title="Average per Doctor" value={compactNumber.format(stats.averagePatientsPerDoctor)} description="Patients divided by total Doctors" icon={UserRoundCheck} /></section>
+        <section aria-label="Appointment analytics" className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(22rem,1fr)]"><DateChart stats={stats} /><DoctorChart stats={stats} /></section>
+        <section aria-label="Condition and upcoming Patient analytics" className="grid min-w-0 gap-4 xl:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.6fr)]"><ConditionChart stats={stats} /><UpcomingPatients stats={stats} /></section>
+      </div>
+    </PageContainer>
+  )
 }

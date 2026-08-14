@@ -87,7 +87,7 @@ export function DoctorListEmpty({ filtered }: { filtered: boolean }) {
   return (
     <Card>
       <CardHeader className="items-center py-12 text-center sm:py-16">
-        <span className="mb-2 flex size-11 items-center justify-center rounded-full bg-neutral-100 text-neutral-600">
+        <span className="mb-2 flex size-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-neutral-400">
           <Stethoscope className="size-5" aria-hidden="true" />
         </span>
         <CardTitle>{filtered ? "No matching doctors" : "No doctors yet"}</CardTitle>
@@ -124,7 +124,7 @@ export function DoctorList({ doctors }: { doctors: Doctor[] }) {
                 <TableCell className="pl-5 font-medium">
                   <Link
                     href={`/doctors/${doctor.id}`}
-                    className="rounded-sm outline-none hover:underline focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2"
+                    className="rounded-sm outline-none hover:underline focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070908]"
                   >
                     {doctor.name}
                   </Link>
@@ -144,7 +144,7 @@ export function DoctorList({ doctors }: { doctors: Doctor[] }) {
                     {doctor.email}
                   </a>
                 </TableCell>
-                <TableCell className="whitespace-nowrap text-neutral-600">
+                <TableCell className="whitespace-nowrap text-neutral-400">
                   <DoctorDate value={doctor.createdAt} />
                 </TableCell>
                 <TableCell className="pr-5">
@@ -169,9 +169,9 @@ export function DoctorList({ doctors }: { doctors: Doctor[] }) {
           <Link
             key={doctor.id}
             href={`/doctors/${doctor.id}`}
-            className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2"
+            className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070908]"
           >
-            <Card className="transition-colors hover:border-neutral-300">
+            <Card className="transition-colors hover:ring-white/20">
               <CardHeader>
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
@@ -183,7 +183,7 @@ export function DoctorList({ doctors }: { doctors: Doctor[] }) {
                   <ArrowRight className="size-4 shrink-0 text-neutral-400" aria-hidden="true" />
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2 text-sm text-neutral-600">
+              <CardContent className="space-y-2 text-sm text-neutral-400">
                 <p className="flex items-start gap-2">
                   <Building2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                   <span>{doctor.hospital}</span>

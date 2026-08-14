@@ -133,7 +133,7 @@ function DoctorManagerContent({ urlSearch }: { urlSearch: string }) {
             <h2 className="mt-1 text-2xl font-semibold tracking-[-0.025em] sm:text-3xl">
               Doctor management
             </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-600">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-neutral-400">
               Add doctors and find their contact and practice information.
             </p>
           </div>

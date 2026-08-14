@@ -29,8 +29,8 @@ export function SidebarNavigation({
                 {...(onNavigate === undefined ? {} : { onClick: onNavigate })}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-neutral-400 outline-none transition-colors hover:bg-white/8 hover:text-white focus-visible:ring-2 focus-visible:ring-white/60",
-                  isActive && "bg-white text-neutral-950 hover:bg-white hover:text-neutral-950",
+                  "flex min-h-11 items-center gap-3 rounded-xl px-3.5 text-sm font-medium text-neutral-400 outline-none transition-all hover:bg-white/[0.07] hover:text-white focus-visible:ring-2 focus-visible:ring-white/60",
+                  isActive && "bg-[linear-gradient(135deg,#ffffff,#d8d8d8)] text-neutral-950 shadow-[0_10px_30px_rgba(255,255,255,0.08)] hover:bg-white hover:text-neutral-950",
                 )}
               >
                 <Icon className="size-[1.125rem]" aria-hidden="true" />
