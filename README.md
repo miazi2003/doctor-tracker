@@ -405,37 +405,33 @@ The repository does not currently define an automated test script.
 
 No real screenshots are currently committed. Capture the following views with sanitized demo data before submission. The intended Markdown references are retained in HTML comments so this README does not display broken images.
 
-### Desktop Screenshots
+### 🖥️ Desktop Screenshots
 
-- [ ] `docs/screenshots/desktop/login.png`
-- [ ] `docs/screenshots/desktop/dashboard.png`
-- [ ] `docs/screenshots/desktop/doctors.png`
-- [ ] `docs/screenshots/desktop/doctor-details.png`
-- [ ] `docs/screenshots/desktop/patients.png`
+- [x] `document/screenshots/desktop/login.png`
+- [x] `document/screenshots/desktop/dashboard.png`
+- [x] `document/screenshots/desktop/doctors.png`
+- [x] `document/screenshots/desktop/doctor-details.png`
+- [x] `document/screenshots/desktop/patients.png`
 
-<!--
-![Doctor Tracker Login](docs/screenshots/desktop/login.png)
-![Doctor Tracker Dashboard](docs/screenshots/desktop/dashboard.png)
-![Doctor Tracker Doctors](docs/screenshots/desktop/doctors.png)
-![Doctor Tracker Doctor Details](docs/screenshots/desktop/doctor-details.png)
-![Doctor Tracker Patients](docs/screenshots/desktop/patients.png)
--->
+![Doctor Tracker Login](document/screenshots/desktop/login.png)
+![Doctor Tracker Dashboard](document/screenshots/desktop/dashboard.png)
+![Doctor Tracker Doctors](document/screenshots/desktop/doctors.png)
+![Doctor Tracker Doctor Details](document/screenshots/desktop/doctor-details.png)
+![Doctor Tracker Patients](document/screenshots/desktop/patients.png)
 
-### Mobile Screenshots
+---
 
-- [ ] `docs/screenshots/mobile/login.png`
-- [ ] `docs/screenshots/mobile/dashboard.png`
-- [ ] `docs/screenshots/mobile/doctor-list.png`
-- [ ] `docs/screenshots/mobile/patient-list.png`
-- [ ] `docs/screenshots/mobile/navigation.png`
+### 📱 Mobile Screenshots
 
-<!--
-![Doctor Tracker Mobile Login](docs/screenshots/mobile/login.png)
-![Doctor Tracker Mobile Dashboard](docs/screenshots/mobile/dashboard.png)
-![Doctor Tracker Mobile Doctor Cards](docs/screenshots/mobile/doctor-list.png)
-![Doctor Tracker Mobile Patient Cards](docs/screenshots/mobile/patient-list.png)
-![Doctor Tracker Mobile Navigation](docs/screenshots/mobile/navigation.png)
--->
+- [x] `document/screenshots/mobile/dashboard.jpeg`
+- [x] `document/screenshots/mobile/doctors.jpeg`
+- [x] `document/screenshots/mobile/patients.jpeg`
+- [x] `document/screenshots/mobile/doctor-details.jpeg`
+
+![Doctor Tracker Mobile Dashboard](document/screenshots/mobile/dashboard.jpeg)
+![Doctor Tracker Mobile Doctors](document/screenshots/mobile/doctors.jpeg)
+![Doctor Tracker Mobile Patients](document/screenshots/mobile/patients.jpeg)
+![Doctor Tracker Mobile Doctor Details](document/screenshots/mobile/doctor-details.jpeg)
 
 ## Deployment Notes
 
