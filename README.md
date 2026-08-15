@@ -18,8 +18,8 @@ These are the submission URLs. Complete the manual deployment and end-to-end che
 Safe public test credentials are not documented in the repository. The repository owner must replace these placeholders with dedicated, non-production test credentials before submission:
 
 ```text
-Email: <TEST_ADMIN_EMAIL>
-Password: <TEST_ADMIN_PASSWORD>
+Email: admin@doctor.com
+Password: admin@doctor2026
 ```
 
 Never publish private production credentials or copy values from a real environment file into this README.
