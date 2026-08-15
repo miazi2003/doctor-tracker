@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Activity, CalendarClock, LoaderCircle, Stethoscope, UserRoundCheck, UsersRound, type LucideIcon } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useMemo } from "react"
+import { useId, useMemo } from "react"
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from "recharts"
 
 import { PageContainer } from "@/components/admin/page-container"
@@ -26,6 +26,12 @@ import { dashboardStatsQueryOptions } from "@/features/dashboard/dashboard.queri
 import { dashboardDays, type DashboardDays, type DashboardStats } from "@/features/dashboard/dashboard.schema"
 import { cn } from "@/lib/utils"
 
+import {
+  dashboardChartColors,
+  getConditionChartColor,
+  withHexAlpha,
+} from "./dashboard-chart-colors"
+
 const compactNumber = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 })
 const compactDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" })
 const fullDate = new Intl.DateTimeFormat("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })
@@ -33,9 +39,8 @@ const appointmentDate = new Intl.DateTimeFormat("en-US", { year: "numeric", mont
 const dateFromDay = (value: string): Date => new Date(`${value}T00:00:00.000Z`)
 const compactDoctorName = (value: string): string => value.length > 12 ? `${value.slice(0, 12)}...` : value
 const isDashboardDays = (value: number): value is DashboardDays => dashboardDays.includes(value as DashboardDays)
-const dateChartConfig = { patients: { label: "Patients", color: "#f5f5f5" } } satisfies ChartConfig
-const doctorChartConfig = { patients: { label: "Patients", color: "#d4d4d4" } } satisfies ChartConfig
-const conditionColors = ["#fafafa", "#d4d4d4", "#a3a3a3", "#737373", "#525252"] as const
+const dateChartConfig = { patients: { label: "Patients", color: dashboardChartColors.date.blue } } satisfies ChartConfig
+const doctorChartConfig = { patients: { label: "Patients", color: dashboardChartColors.doctor.middle } } satisfies ChartConfig
 const dashboardCardClass = "gap-0 rounded-[1.35rem] bg-[linear-gradient(145deg,rgba(255,255,255,0.055),rgba(255,255,255,0.018))] py-0 text-neutral-100 ring-1 ring-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.22)]"
 
 function MetricCard({ title, value, description, icon: Icon }: { title: string; value: string; description: string; icon: LucideIcon }) {
@@ -63,18 +68,32 @@ function PanelHeading({ title, description }: { title: string; description: stri
 
 function DateChart({ stats }: { stats: DashboardStats }) {
   const data = stats.patientsByDate.map((item) => ({ ...item, patients: item.count }))
+  const chartId = useId().replace(/:/gu, "")
+  const lineGradientId = `patient-line-${chartId}`
+  const areaGradientId = `patient-area-${chartId}`
   return (
     <Card className={cn(dashboardCardClass, "min-w-0")}>
       <PanelHeading title="Patients by date" description="Appointments across the selected UTC calendar period." />
       <CardContent className="px-2 pt-4 pb-3 sm:px-4">
         <ChartContainer config={dateChartConfig} className="h-64 w-full min-w-0 aspect-auto text-neutral-500 [&_.recharts-cartesian-axis-tick_text]:fill-neutral-500 [&_.recharts-cartesian-grid_line]:stroke-white/[0.07]" role="img" aria-label="Area chart of patients by appointment date">
           <AreaChart data={data} margin={{ left: 0, right: 10, top: 8, bottom: 0 }} accessibilityLayer>
-            <defs><linearGradient id="patientAreaFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ffffff" stopOpacity={0.44} /><stop offset="100%" stopColor="#ffffff" stopOpacity={0.015} /></linearGradient></defs>
+            <defs>
+              <linearGradient id={lineGradientId} x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor={dashboardChartColors.date.blue} />
+                <stop offset="58%" stopColor={dashboardChartColors.date.highlight} />
+                <stop offset="100%" stopColor={dashboardChartColors.date.cyan} />
+              </linearGradient>
+              <linearGradient id={areaGradientId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={dashboardChartColors.date.blue} stopOpacity={0.3} />
+                <stop offset="55%" stopColor={dashboardChartColors.date.blue} stopOpacity={0.09} />
+                <stop offset="100%" stopColor={dashboardChartColors.date.blue} stopOpacity={0.01} />
+              </linearGradient>
+            </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 5" />
             <XAxis dataKey="date" tickLine={false} axisLine={false} minTickGap={28} tickMargin={12} tickFormatter={(value: string) => compactDate.format(dateFromDay(value))} />
             <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={28} />
             <ChartTooltip cursor={{ stroke: "rgba(255,255,255,0.14)" }} content={<ChartTooltipContent className="border-white/10 bg-[#111412] text-neutral-100" indicator="line" labelFormatter={(value) => fullDate.format(dateFromDay(String(value)))} />} />
-            <Area dataKey="patients" type="monotone" fill="url(#patientAreaFill)" stroke="var(--color-patients)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#fff", stroke: "#0a0c0b", strokeWidth: 2 }} isAnimationActive={false} />
+            <Area dataKey="patients" type="monotone" fill={`url(#${areaGradientId})`} stroke={`url(#${lineGradientId})`} strokeWidth={2.25} dot={false} activeDot={{ r: 4, fill: dashboardChartColors.date.highlight, stroke: "#0a0c0b", strokeWidth: 2 }} isAnimationActive={false} style={{ filter: "drop-shadow(0 0 4px rgb(59 130 246 / 24%))" }} />
           </AreaChart>
         </ChartContainer>
       </CardContent>
@@ -84,20 +103,32 @@ function DateChart({ stats }: { stats: DashboardStats }) {
 
 function DoctorChart({ stats }: { stats: DashboardStats }) {
   const data = stats.patientsPerDoctor.map((item) => ({ doctor: item.doctor?.name ?? "Doctor unavailable", patients: item.count }))
+  const chartId = useId().replace(/:/gu, "")
+  const barGradientId = `doctor-bar-${chartId}`
+  const barShadowId = `doctor-shadow-${chartId}`
   return (
     <Card className={cn(dashboardCardClass, "min-w-0")}>
       <PanelHeading title="Patients per Doctor" description="Top Doctors by assigned Patient count." />
       <CardContent className="min-w-0 px-3 pt-4 pb-3 sm:px-5">
         {data.length === 0 ? <EmptyChart message="Patient assignments will appear here once records are added." /> : (
           <div className="overflow-x-auto pb-1 [scrollbar-color:#404040_transparent]">
-            <ChartContainer config={doctorChartConfig} className="h-64 aspect-auto text-neutral-500 [&_.recharts-cartesian-axis-tick_text]:fill-neutral-100 [&_.recharts-cartesian-grid_line]:stroke-white/[0.06]" style={{ minWidth: Math.max(576, data.length * 92) }} role="img" aria-label="Vertical bar chart of patients per Doctor">
+            <ChartContainer config={doctorChartConfig} className="h-64 aspect-auto text-neutral-500 [&_.recharts-bar-rectangle_path]:transition-[filter,stroke] [&_.recharts-bar-rectangle_path]:duration-200 [&_.recharts-bar-rectangle_path:hover]:stroke-white/40 [&_.recharts-bar-rectangle_path:hover]:brightness-110 [&_.recharts-cartesian-axis-tick_text]:fill-neutral-100 [&_.recharts-cartesian-grid_line]:stroke-white/[0.06] motion-reduce:[&_.recharts-bar-rectangle_path]:transition-none" style={{ minWidth: Math.max(576, data.length * 92) }} role="img" aria-label="Vertical bar chart of patients per Doctor">
               <BarChart data={data} margin={{ left: 0, right: 0, top: 8, bottom: 8 }} accessibilityLayer>
-                <defs><linearGradient id="doctorBarFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#f5f5f5" stopOpacity={0.95} /><stop offset="100%" stopColor="#737373" stopOpacity={0.68} /></linearGradient></defs>
+                <defs>
+                  <linearGradient id={barGradientId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={dashboardChartColors.doctor.top} />
+                    <stop offset="52%" stopColor={dashboardChartColors.doctor.middle} />
+                    <stop offset="100%" stopColor={dashboardChartColors.doctor.bottom} />
+                  </linearGradient>
+                  <filter id={barShadowId} x="-30%" y="-20%" width="160%" height="150%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor={dashboardChartColors.doctor.middle} floodOpacity="0.18" />
+                  </filter>
+                </defs>
                 <CartesianGrid vertical={false} strokeDasharray="3 5" />
                 <XAxis dataKey="doctor" type="category" interval={0} tickLine={false} axisLine={false} tickMargin={12} height={44} tick={{ fontSize: 11 }} tickFormatter={compactDoctorName} />
                 <YAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} width={28} />
                 <ChartTooltip cursor={{ fill: "rgba(255,255,255,0.035)", radius: 14 }} content={<ChartTooltipContent className="border-white/10 bg-[#111412] text-neutral-100" labelFormatter={(value) => String(value)} />} />
-                <Bar dataKey="patients" fill="url(#doctorBarFill)" radius={[16, 16, 16, 16]} maxBarSize={58} isAnimationActive={false} />
+                <Bar dataKey="patients" fill={`url(#${barGradientId})`} filter={`url(#${barShadowId})`} radius={[16, 16, 4, 4]} stroke="transparent" strokeWidth={1} maxBarSize={58} isAnimationActive={false} />
               </BarChart>
             </ChartContainer>
           </div>
@@ -112,7 +143,7 @@ function ConditionChart({ stats }: { stats: DashboardStats }) {
     const chartConfig: ChartConfig = {}
     const chartData = stats.patientsByCondition.map((item, index) => {
       const key = `condition${String(index)}`
-      const color = conditionColors[index % conditionColors.length] ?? conditionColors[0]
+      const color = getConditionChartColor(item.condition, index)
       chartConfig[key] = { label: item.condition, color }
       return { ...item, key, color, fill: `var(--color-${key})` }
     })
@@ -146,6 +177,10 @@ function getInitials(name: string): string {
 
 function UpcomingPatients({ stats }: { stats: DashboardStats }) {
   const patients = stats.upcomingPatients
+  const conditionColors = useMemo(
+    () => new Map(stats.patientsByCondition.map((item, index) => [item.condition, getConditionChartColor(item.condition, index)])),
+    [stats.patientsByCondition],
+  )
   return (
     <Card className={cn(dashboardCardClass, "min-w-0")}>
       <CardHeader className="flex flex-row items-start justify-between gap-4 px-5 pt-5 pb-0 sm:px-6 sm:pt-6">
@@ -168,7 +203,7 @@ function UpcomingPatients({ stats }: { stats: DashboardStats }) {
                 {patients.map((patient) => (
                   <tr key={patient.id}>
                     <td className="px-1 py-3"><div className="flex min-w-0 items-center gap-2.5"><Avatar size="sm" className="size-8"><AvatarFallback className="bg-[linear-gradient(145deg,#ffffff,#bdbdbd)] text-[0.68rem] font-bold text-neutral-950">{getInitials(patient.name)}</AvatarFallback></Avatar><span className="truncate text-xs font-medium text-neutral-100" title={patient.name}>{patient.name}</span></div></td>
-                    <td className="px-2 py-3"><Badge variant="outline" className="w-fit max-w-full rounded-full border-white/10 bg-white/[0.05] px-2.5 py-1 text-[0.72rem] font-normal text-neutral-300"><span className="truncate">{patient.condition}</span></Badge></td>
+                    <td className="px-2 py-3"><Badge variant="outline" className="w-fit max-w-full rounded-full px-2.5 py-1 text-[0.72rem] font-normal" style={{ color: conditionColors.get(patient.condition) ?? dashboardChartColors.condition.other, borderColor: withHexAlpha(conditionColors.get(patient.condition) ?? dashboardChartColors.condition.other, "42"), backgroundColor: withHexAlpha(conditionColors.get(patient.condition) ?? dashboardChartColors.condition.other, "0F") }}><span className="truncate">{patient.condition}</span></Badge></td>
                     <td className="px-2 py-3"><time dateTime={patient.appointmentDate} className="text-xs leading-5 whitespace-nowrap text-neutral-300">{appointmentDate.format(new Date(patient.appointmentDate))}</time></td>
                     <td className="truncate px-2 py-3 text-xs text-neutral-400" title={patient.doctor?.name ?? "Doctor unavailable"}>{patient.doctor?.name ?? "Doctor unavailable"}</td>
                   </tr>
