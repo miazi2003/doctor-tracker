@@ -1,8 +1,8 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useState, type ReactNode } from "react"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 
 import { dashboardStatsQueryOptions } from "@/features/dashboard/dashboard.queries"
 
@@ -10,24 +10,20 @@ import { AuthErrorScreen } from "./auth-error-screen"
 import { AuthLoadingScreen } from "./auth-loading-screen"
 import { useCurrentAdmin } from "./use-current-admin"
 
-export function AuthGuard({ children }: { children: ReactNode }) {
+export function RootAccess() {
   const router = useRouter()
-  const pathname = usePathname()
   const auth = useCurrentAdmin()
-  const [warmInitialDashboard] = useState(
-    () => pathname === "/dashboard" && auth.status === "loading",
-  )
   const dashboardQuery = useQuery({
     ...dashboardStatsQueryOptions(30),
-    enabled:
-      warmInitialDashboard && auth.status === "authenticated",
+    enabled: auth.status === "authenticated",
   })
 
   useEffect(() => {
-    if (auth.status === "unauthenticated") {
-      router.replace("/login")
+    if (auth.status === "authenticated" && !dashboardQuery.isPending) {
+      router.replace("/dashboard")
     }
-  }, [auth.status, router])
+    if (auth.status === "unauthenticated") router.replace("/login")
+  }, [auth.status, dashboardQuery.isPending, router])
 
   if (auth.status === "network-error" || auth.status === "unexpected-error") {
     return (
@@ -39,13 +35,5 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     )
   }
 
-  if (auth.status !== "authenticated") {
-    return <AuthLoadingScreen />
-  }
-
-  if (warmInitialDashboard && dashboardQuery.isPending) {
-    return <AuthLoadingScreen />
-  }
-
-  return children
+  return <AuthLoadingScreen />
 }

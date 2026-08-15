@@ -36,6 +36,8 @@ export type CurrentAdminResult =
 
 export type CurrentAdminErrorKind = "network" | "unexpected"
 
+const SESSION_TIMEOUT_MS = 30_000
+
 export class CurrentAdminError extends Error {
   public constructor(public readonly kind: CurrentAdminErrorKind) {
     super(kind)
@@ -43,21 +45,32 @@ export class CurrentAdminError extends Error {
   }
 }
 
-export const getCurrentAdmin = async (): Promise<CurrentAdminResult> => {
+export const getCurrentAdmin = async (signal?: AbortSignal): Promise<CurrentAdminResult> => {
   let apiResponse: ApiResponse
+  const controller = new AbortController()
+  let didTimeout = false
+  const cancelRequest = (): void => controller.abort(signal?.reason)
+  const timeout = setTimeout(() => {
+    didTimeout = true
+    controller.abort()
+  }, SESSION_TIMEOUT_MS)
+
+  signal?.addEventListener("abort", cancelRequest, { once: true })
 
   try {
-    apiResponse = await apiRequest("/api/auth/me")
+    apiResponse = await apiRequest("/api/auth/me", { signal: controller.signal })
   } catch (error: unknown) {
-    if (error instanceof ApiClientError && error.kind === "network") {
+    if (didTimeout || (error instanceof ApiClientError && error.kind === "network")) {
       throw new CurrentAdminError("network")
     }
 
     throw new CurrentAdminError("unexpected")
-    
+  } finally {
+    clearTimeout(timeout)
+    signal?.removeEventListener("abort", cancelRequest)
   }
 
-  if (apiResponse.response.status === 401) {
+  if (apiResponse.response.status === 401 || apiResponse.response.status === 403) {
     return { status: "unauthenticated", admin: null }
   }
 

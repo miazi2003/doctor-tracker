@@ -18,15 +18,16 @@ export type CurrentAdminState =
       status: "network-error" | "unexpected-error"
       admin: null
       error: CurrentAdminError
+      isRetrying: boolean
       retry: () => void
     }
 
 export const useCurrentAdmin = (): CurrentAdminState => {
   const query = useQuery<CurrentAdminResult, CurrentAdminError>({
     queryKey: authQueryKeys.currentAdmin,
-    queryFn: getCurrentAdmin,
+    queryFn: ({ signal }) => getCurrentAdmin(signal),
     staleTime: 5 * 60 * 1_000,
-    retry: 1,
+    retry: false,
     refetchOnWindowFocus: false,
   })
 
@@ -40,6 +41,7 @@ export const useCurrentAdmin = (): CurrentAdminState => {
         query.error.kind === "network" ? "network-error" : "unexpected-error",
       admin: null,
       error: query.error,
+      isRetrying: query.isFetching,
       retry: () => {
         void query.refetch()
       },

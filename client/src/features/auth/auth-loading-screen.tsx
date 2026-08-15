@@ -1,20 +1,31 @@
-import { LoaderCircle, ShieldCheck } from "lucide-react"
+"use client"
+
+import { useEffect, useState } from "react"
+
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton"
 
 export function AuthLoadingScreen({
-  message = "Checking your secure session",
-}: {
-  message?: string
-}) {
+  message = "Verifying your secure session",
+}: { message?: string }) {
+  const [isTakingLonger, setIsTakingLonger] = useState(false)
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setIsTakingLonger(true), 3_000)
+    return () => window.clearTimeout(timeout)
+  }, [])
+
   return (
-    <main className="flex min-h-screen items-center justify-center bg-neutral-950 px-6 text-white">
-      <div className="flex max-w-sm flex-col items-center text-center" role="status" aria-live="polite">
-        <span className="mb-6 flex size-12 items-center justify-center rounded-xl border border-white/15 bg-white/8">
-          <ShieldCheck className="size-6" aria-hidden="true" />
-        </span>
-        <LoaderCircle className="size-6 animate-spin text-neutral-400" aria-hidden="true" />
-        <p className="mt-4 text-sm font-medium text-neutral-200">{message}</p>
-        <span className="sr-only">Loading</span>
-      </div>
-    </main>
+    <DashboardSkeleton
+      notice={
+        <div aria-busy="true" aria-live="polite" role="status">
+          <span className="sr-only">{message}</span>
+          {isTakingLonger && (
+            <p className="rounded-xl border border-violet-300/10 bg-violet-400/[0.055] px-4 py-3 text-sm text-neutral-300">
+              Starting the secure server… This may take a few seconds on the first visit.
+            </p>
+          )}
+        </div>
+      }
+    />
   )
 }

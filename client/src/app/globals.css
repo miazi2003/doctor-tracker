@@ -147,3 +147,35 @@ div:has(> input[aria-label="Search patients"]) + div [data-slot="button"],
 div:has(> input#doctor-search) + div [data-slot="button"] {
   border-color: rgb(255 255 255 / 25%);
 }
+
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+
+.skeleton-shimmer::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgb(255 255 255 / 9%) 45%,
+    rgb(139 92 246 / 13%) 52%,
+    transparent 68%
+  );
+  transform: translateX(-120%);
+  animation: skeleton-shimmer 2.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after {
+    animation: none;
+    opacity: 0;
+  }
+}

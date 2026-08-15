@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { RootAccess } from "@/features/auth/root-access"
 
 export default function Home() {
-  redirect("/login");
+  return <RootAccess />
 }

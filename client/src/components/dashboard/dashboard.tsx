@@ -15,7 +15,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
+import {
+  DashboardChartsSkeleton,
+  DashboardDetailsSkeleton,
+  DashboardHeadingSkeleton,
+  DashboardMetricsSkeleton,
+} from "@/components/dashboard/dashboard-skeleton"
 import { DashboardApiError } from "@/features/dashboard/dashboard.api"
 import { dashboardStatsQueryOptions } from "@/features/dashboard/dashboard.queries"
 import { dashboardDays, type DashboardDays, type DashboardStats } from "@/features/dashboard/dashboard.schema"
@@ -32,19 +37,6 @@ const dateChartConfig = { patients: { label: "Patients", color: "#f5f5f5" } } sa
 const doctorChartConfig = { patients: { label: "Patients", color: "#d4d4d4" } } satisfies ChartConfig
 const conditionColors = ["#fafafa", "#d4d4d4", "#a3a3a3", "#737373", "#525252"] as const
 const dashboardCardClass = "gap-0 rounded-[1.35rem] bg-[linear-gradient(145deg,rgba(255,255,255,0.055),rgba(255,255,255,0.018))] py-0 text-neutral-100 ring-1 ring-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.22)]"
-
-function DashboardSkeleton() {
-  return (
-    <PageContainer className="dark min-h-[calc(100vh-4rem)] bg-[#070908] lg:min-h-[calc(100vh-5rem)]">
-      <div role="status" aria-label="Loading dashboard" className="space-y-5">
-        <div className="flex items-start justify-between gap-4"><div className="space-y-2"><Skeleton className="h-8 w-56 bg-white/10" /><Skeleton className="h-4 w-80 max-w-full bg-white/10" /></div><Skeleton className="h-11 w-32 rounded-full bg-white/10" /></div>
-        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 2xl:grid-cols-4">{Array.from({ length: 4 }, (_, index) => <Skeleton key={index} className="h-40 rounded-[1.35rem] bg-white/10" />)}</div>
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(22rem,1fr)]"><Skeleton className="h-[22rem] rounded-[1.35rem] bg-white/10" /><Skeleton className="h-[22rem] rounded-[1.35rem] bg-white/10" /></div>
-        <div className="grid gap-4 xl:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.6fr)]"><Skeleton className="h-[22rem] rounded-[1.35rem] bg-white/10" /><Skeleton className="h-[22rem] rounded-[1.35rem] bg-white/10" /></div>
-      </div>
-    </PageContainer>
-  )
-}
 
 function MetricCard({ title, value, description, icon: Icon }: { title: string; value: string; description: string; icon: LucideIcon }) {
   return (
@@ -197,18 +189,17 @@ export function Dashboard() {
   const requestedDays = Number(searchParams.get("days") ?? "30")
   const days: DashboardDays = isDashboardDays(requestedDays) ? requestedDays : 30
   const query = useQuery(dashboardStatsQueryOptions(days))
-  if (query.isPending) return <DashboardSkeleton />
   if (query.isError) return (
     <PageContainer className="dark min-h-[calc(100vh-4rem)] bg-[#070908] text-neutral-100 lg:min-h-[calc(100vh-5rem)]">
       <div className="space-y-5"><div><p className="text-sm font-medium text-neutral-500">Overview</p><h2 className="mt-1 text-2xl font-semibold tracking-[-0.025em] sm:text-3xl">Analytics dashboard</h2></div><Alert variant="destructive" className="border-red-400/20 bg-red-950/20 text-red-100"><AlertTitle>Dashboard analytics could not be loaded</AlertTitle><AlertDescription className="flex flex-col items-start justify-between gap-4 text-red-200/80 sm:flex-row sm:items-center"><span>{query.error instanceof DashboardApiError && query.error.kind === "network" ? "Check your connection and try again." : "The server returned an unexpected response. Please try again."}</span><Button variant="outline" size="sm" className="rounded-full border-red-200/20 bg-white/5" onClick={() => void query.refetch()}>Try again</Button></AlertDescription></Alert></div>
     </PageContainer>
   )
   const stats = query.data
-  const isEmpty = stats.totalDoctors === 0 && stats.totalPatients === 0
+  const isEmpty = stats !== undefined && stats.totalDoctors === 0 && stats.totalPatients === 0
   return (
     <PageContainer className="dark min-h-[calc(100vh-4rem)] bg-[radial-gradient(circle_at_65%_-10%,rgba(255,255,255,0.045),transparent_27%),#070908] text-neutral-100 lg:min-h-[calc(100vh-5rem)] lg:px-6 lg:py-7 xl:px-7">
       <div className="space-y-5">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        {stats === undefined ? <DashboardHeadingSkeleton /> : <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div><h2 className="text-2xl font-semibold tracking-[-0.035em] text-white sm:text-[1.75rem]">Analytics dashboard</h2><p className="mt-1.5 max-w-2xl text-sm leading-6 text-neutral-400">Monitor Patient activity, Doctor workloads, and upcoming appointments.</p></div>
           <div className="flex min-h-11 self-end flex-col items-end gap-1.5 sm:self-auto sm:flex-row sm:items-center sm:gap-3">
             <label htmlFor="dashboard-date-range" className="text-xs font-medium text-neutral-400">
@@ -220,11 +211,11 @@ export function Dashboard() {
             </Select>
             {query.isFetching && <span role="status" className="flex items-center gap-1.5 text-xs text-neutral-500"><LoaderCircle className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />Updating</span>}
           </div>
-        </header>
+        </header>}
         {isEmpty && <Alert className="border-white/10 bg-white/[0.035] text-neutral-200"><Activity aria-hidden="true" /><AlertTitle>No analytics yet</AlertTitle><AlertDescription className="text-neutral-400">Add Doctors and Patients to begin building dashboard insights. The selected date chart still shows the complete zero-filled period.</AlertDescription></Alert>}
-        <section aria-label="Summary" className="grid grid-cols-2 gap-2.5 sm:gap-4 2xl:grid-cols-4"><MetricCard title="Total Doctors" value={compactNumber.format(stats.totalDoctors)} description="Active Doctor profiles" icon={Stethoscope} /><MetricCard title="Total Patients" value={compactNumber.format(stats.totalPatients)} description="All Patient records" icon={UsersRound} /><MetricCard title="Patients in period" value={compactNumber.format(stats.patientsInSelectedPeriod)} description={`Appointments in the last ${String(days)} UTC days`} icon={CalendarClock} /><MetricCard title="Average per Doctor" value={compactNumber.format(stats.averagePatientsPerDoctor)} description="Patients divided by total Doctors" icon={UserRoundCheck} /></section>
-        <section aria-label="Appointment analytics" className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(22rem,1fr)]"><DateChart stats={stats} /><DoctorChart stats={stats} /></section>
-        <section aria-label="Condition and upcoming Patient analytics" className="grid min-w-0 gap-4 xl:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.6fr)]"><ConditionChart stats={stats} /><UpcomingPatients stats={stats} /></section>
+        {stats === undefined ? <DashboardMetricsSkeleton /> : <section aria-label="Summary" className="grid grid-cols-2 gap-2.5 sm:gap-4 2xl:grid-cols-4"><MetricCard title="Total Doctors" value={compactNumber.format(stats.totalDoctors)} description="Active Doctor profiles" icon={Stethoscope} /><MetricCard title="Total Patients" value={compactNumber.format(stats.totalPatients)} description="All Patient records" icon={UsersRound} /><MetricCard title="Patients in period" value={compactNumber.format(stats.patientsInSelectedPeriod)} description={`Appointments in the last ${String(days)} UTC days`} icon={CalendarClock} /><MetricCard title="Average per Doctor" value={compactNumber.format(stats.averagePatientsPerDoctor)} description="Patients divided by total Doctors" icon={UserRoundCheck} /></section>}
+        {stats === undefined ? <DashboardChartsSkeleton /> : <section aria-label="Appointment analytics" className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(22rem,1fr)]"><DateChart stats={stats} /><DoctorChart stats={stats} /></section>}
+        {stats === undefined ? <DashboardDetailsSkeleton /> : <section aria-label="Condition and upcoming Patient analytics" className="grid min-w-0 gap-4 xl:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.6fr)]"><ConditionChart stats={stats} /><UpcomingPatients stats={stats} /></section>}
       </div>
     </PageContainer>
   )
